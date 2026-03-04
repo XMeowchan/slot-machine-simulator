@@ -682,10 +682,11 @@
 
             // 音效生成器
             playSound(type) {
-                if (!this.soundEnabled) return;
+                if (!this.soundEnabled || !this.audioContext) return;
                 
-                const ctx = this.audioContext;
-                const now = ctx.currentTime;
+                try {
+                    const ctx = this.audioContext;
+                    const now = ctx.currentTime;
                 
                 switch(type) {
                     case 'spin':
@@ -776,6 +777,9 @@
                         loseOsc.stop(now + 0.3);
                         break;
                 }
+                } catch (e) {
+                    console.error('音效播放失败:', e);
+                }
             }
 
                 this.initElements();
@@ -803,7 +807,14 @@
             }
 
             initEventListeners() {
-                this.spinBtn.addEventListener('click', () => this.spin());
+                this.spinBtn.addEventListener('click', () => {
+                    // 首次点击时初始化音频上下文
+                    if (this.audioContext.state === 'suspended') {
+                        this.audioContext.resume();
+                    }
+                    this.spin();
+                });
+                
                 this.resetBtn.addEventListener('click', () => this.reset());
 
                 document.querySelectorAll('.bet-btn').forEach(btn => {
