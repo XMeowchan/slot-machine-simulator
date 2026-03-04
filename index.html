@@ -13,21 +13,33 @@
 
         body {
             font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(102, 126, 234, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(118, 75, 162, 0.3) 0%, transparent 50%),
+                linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
+            animation: bgShift 10s ease-in-out infinite;
+        }
+
+        @keyframes bgShift {
+            0%, 100% { filter: hue-rotate(0deg); }
+            50% { filter: hue-rotate(20deg); }
         }
 
         .container {
-            background: #2d3748;
+            background: linear-gradient(145deg, #2d3748 0%, #1a202c 100%);
             border-radius: 20px;
             padding: 40px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            box-shadow: 
+                0 20px 60px rgba(0,0,0,0.5),
+                0 0 100px rgba(102, 126, 234, 0.2);
             max-width: 600px;
             width: 100%;
+            border: 2px solid rgba(255, 215, 0, 0.2);
         }
 
         h1 {
@@ -35,7 +47,15 @@
             color: #ffd700;
             font-size: 2.5em;
             margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            text-shadow: 
+                2px 2px 4px rgba(0,0,0,0.5),
+                0 0 20px rgba(255, 215, 0, 0.5);
+            animation: titleGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes titleGlow {
+            0%, 100% { text-shadow: 2px 2px 4px rgba(0,0,0,0.5), 0 0 20px rgba(255, 215, 0, 0.5); }
+            50% { text-shadow: 2px 2px 4px rgba(0,0,0,0.5), 0 0 30px rgba(255, 215, 0, 0.8); }
         }
 
         .subtitle {
@@ -88,7 +108,7 @@
         }
 
         .reel {
-            background: #1a202c;
+            background: linear-gradient(180deg, #1a202c 0%, #2d3748 50%, #1a202c 100%);
             border: 4px solid #ffd700;
             border-radius: 15px;
             width: 120px;
@@ -97,17 +117,67 @@
             align-items: center;
             justify-content: center;
             font-size: 4em;
-            box-shadow: inset 0 4px 8px rgba(0,0,0,0.3);
-            transition: transform 0.3s;
+            box-shadow: 
+                inset 0 4px 8px rgba(0,0,0,0.3),
+                0 0 20px rgba(255, 215, 0, 0.3);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .reel::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent 30%,
+                rgba(255, 255, 255, 0.1) 50%,
+                transparent 70%
+            );
+            transform: rotate(45deg);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0%, 100% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            50% { transform: translateX(100%) translateY(100%) rotate(45deg); }
         }
 
         .reel.spinning {
-            animation: spin 0.1s linear infinite;
+            animation: spin 0.05s linear infinite;
+            filter: blur(2px);
+        }
+
+        .reel.stopping {
+            animation: bounce 0.5s ease-out;
+        }
+
+        .reel.win {
+            animation: winPulse 0.5s ease-in-out 3;
+            border-color: #48bb78;
+            box-shadow: 
+                inset 0 4px 8px rgba(0,0,0,0.3),
+                0 0 30px rgba(72, 187, 120, 0.8);
         }
 
         @keyframes spin {
-            0% { transform: rotateX(0deg); }
-            100% { transform: rotateX(360deg); }
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-20px); }
+        }
+
+        @keyframes bounce {
+            0% { transform: translateY(-10px); }
+            50% { transform: translateY(5px); }
+            100% { transform: translateY(0); }
+        }
+
+        @keyframes winPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
         }
 
         .controls {
@@ -512,28 +582,52 @@
             async animateReels(finalReels) {
                 const allSymbols = Object.keys(this.symbols);
                 const reelElements = [this.reel1, this.reel2, this.reel3];
-                const delays = [800, 1200, 1600];
+                const spinDurations = [1000, 1500, 2000]; // 依次停下
 
+                // 开始所有转轮旋转
                 for (let i = 0; i < 3; i++) {
                     const reel = reelElements[i];
-                    const delay = delays[i];
+                    const duration = spinDurations[i];
                     
-                    // 快速滚动
+                    // 快速滚动动画
                     const interval = setInterval(() => {
                         reel.textContent = allSymbols[Math.floor(Math.random() * allSymbols.length)];
                     }, 50);
 
-                    await new Promise(resolve => setTimeout(resolve, delay));
+                    // 等待指定时间后停止
+                    await new Promise(resolve => setTimeout(resolve, duration));
                     clearInterval(interval);
+                    
+                    // 停止动画
+                    reel.classList.remove('spinning');
+                    reel.classList.add('stopping');
                     
                     // 显示最终结果
                     reel.textContent = finalReels[i];
+                    
+                    // 播放停止音效（模拟）
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    reel.classList.remove('stopping');
                 }
             }
 
             showResult(reels, payout, winAmount) {
+                const reelElements = [this.reel1, this.reel2, this.reel3];
+                
                 if (payout.amount >= 100) {
+                    // 超级大奖特效
+                    reelElements.forEach(reel => reel.classList.add('win'));
+                    setTimeout(() => {
+                        reelElements.forEach(reel => reel.classList.remove('win'));
+                    }, 1500);
                     this.showMessage(`🎉 超级大奖！赢得 ¥${winAmount}！`, 'jackpot');
+                } else if (payout.amount >= 10) {
+                    // 大奖特效
+                    reelElements.forEach(reel => reel.classList.add('win'));
+                    setTimeout(() => {
+                        reelElements.forEach(reel => reel.classList.remove('win'));
+                    }, 1000);
+                    this.showMessage(`🎊 大奖 ${payout.amount}x！赢得 ¥${winAmount}`, 'jackpot');
                 } else if (payout.amount > 0) {
                     this.showMessage(`✅ 中奖 ${payout.amount}x！赢得 ¥${winAmount}`, 'win');
                 } else if (this.checkNearMiss(reels)) {
