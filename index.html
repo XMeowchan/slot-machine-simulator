@@ -590,7 +590,7 @@
             </div>
         </div>
 
-        <button class="spin-button" id="spinBtn">🎰 旋转 (¥20)</button>
+        <button class="spin-button" id="spinBtn">💰 立刻捡钱 (¥20)</button>
 
         <div class="message" id="message"></div>
 
@@ -811,7 +811,7 @@
                         document.querySelectorAll('.bet-btn').forEach(b => b.classList.remove('active'));
                         e.target.classList.add('active');
                         this.currentBet = parseInt(e.target.dataset.bet);
-                        this.spinBtn.textContent = `🎰 旋转 (¥${this.currentBet})`;
+                        this.spinBtn.textContent = `💰 立刻捡钱 (¥${this.currentBet})`;
                     });
                 });
             }
