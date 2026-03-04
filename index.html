@@ -67,9 +67,104 @@
 
         .stats {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(2, 1fr);
             gap: 15px;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
+        }
+
+        .jackpot-display {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            border: 3px solid #ffd700;
+            box-shadow: 
+                0 0 20px rgba(255, 215, 0, 0.3),
+                inset 0 2px 10px rgba(255, 215, 0, 0.1);
+            margin-bottom: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .jackpot-display::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent 30%,
+                rgba(255, 215, 0, 0.1) 50%,
+                transparent 70%
+            );
+            animation: jackpotShine 3s linear infinite;
+        }
+
+        @keyframes jackpotShine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        .jackpot-label {
+            color: #ffd700;
+            font-size: 0.9em;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .jackpot-amount {
+            color: #fff;
+            font-size: 2.5em;
+            font-weight: bold;
+            text-shadow: 
+                2px 2px 4px rgba(0,0,0,0.5),
+                0 0 20px rgba(255, 215, 0, 0.6);
+            animation: jackpotPulse 2s ease-in-out infinite;
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes jackpotPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .multiplier-display {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .multiplier-label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.8em;
+            margin-bottom: 5px;
+        }
+
+        .multiplier-value {
+            color: #fff;
+            font-size: 1.8em;
+            font-weight: bold;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .multiplier-value.active {
+            animation: multiplierGlow 0.5s ease-in-out;
+        }
+
+        @keyframes multiplierGlow {
+            0%, 100% { transform: scale(1); text-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+            50% { transform: scale(1.2); text-shadow: 0 0 20px rgba(255, 255, 255, 0.8); }
         }
 
         .stat-box {
@@ -147,21 +242,23 @@
         .reel {
             position: absolute;
             width: 100%;
-            height: 100%;
+            top: 0;
+            left: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start;
             font-size: 4em;
             transition: transform 0.1s linear;
         }
 
         .reel-symbol {
             height: 140px;
+            min-height: 140px;
             display: flex;
             align-items: center;
             justify-content: center;
             width: 100%;
+            flex-shrink: 0;
         }
 
         .reel.spinning {
@@ -415,6 +512,16 @@
         <p class="subtitle">体验真实赌场的数学陷阱</p>
 
         <div class="stats">
+            <div class="jackpot-display">
+                <div class="jackpot-label">🎰 Progressive Jackpot 🎰</div>
+                <div class="jackpot-amount" id="jackpot">¥10,000</div>
+            </div>
+            
+            <div class="multiplier-display">
+                <div class="multiplier-label">连胜倍数加成</div>
+                <div class="multiplier-value" id="multiplier">×1</div>
+            </div>
+
             <div class="stat-box">
                 <div class="stat-label">余额</div>
                 <div class="stat-value" id="balance">¥1000</div>
@@ -422,6 +529,10 @@
             <div class="stat-box">
                 <div class="stat-label">总旋转</div>
                 <div class="stat-value" id="spins">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">连胜次数</div>
+                <div class="stat-value" id="winStreak">0</div>
             </div>
             <div class="stat-box">
                 <div class="stat-label">实际RTP</div>
@@ -554,6 +665,11 @@
                 this.totalBet = 0;
                 this.totalWin = 0;
                 this.isSpinning = false;
+                
+                // 新增玩法
+                this.jackpot = 10000; // 累进奖池
+                this.winStreak = 0; // 连胜次数
+                this.multiplier = 1; // 当前倍数
 
                 this.initElements();
                 this.initEventListeners();
@@ -564,6 +680,9 @@
                 this.balanceEl = document.getElementById('balance');
                 this.spinsEl = document.getElementById('spins');
                 this.rtpEl = document.getElementById('rtp');
+                this.jackpotEl = document.getElementById('jackpot');
+                this.multiplierEl = document.getElementById('multiplier');
+                this.winStreakEl = document.getElementById('winStreak');
                 this.reel1 = document.getElementById('reel1');
                 this.reel2 = document.getElementById('reel2');
                 this.reel3 = document.getElementById('reel3');
@@ -643,6 +762,10 @@
                 this.balance -= this.currentBet;
                 this.totalBet += this.currentBet;
                 this.totalSpins++;
+                
+                // 累进奖池增长（每次下注的2%进入奖池）
+                const jackpotContribution = Math.floor(this.currentBet * 0.02);
+                this.jackpot += jackpotContribution;
 
                 // 动画效果
                 [this.reel1, this.reel2, this.reel3].forEach(reel => {
@@ -662,12 +785,35 @@
 
                 // 计算结果
                 const payout = this.calculatePayout(reels);
-                const winAmount = payout.amount * this.currentBet;
+                let winAmount = payout.amount * this.currentBet;
+                
+                // 检查是否中累进奖池（三个💎）
+                let jackpotWin = false;
+                if (reels[0] === '💎' && reels[1] === '💎' && reels[2] === '💎') {
+                    jackpotWin = true;
+                    winAmount += this.jackpot;
+                    this.jackpot = 10000; // 重置奖池
+                }
+                
+                // 应用连胜倍数
+                if (payout.amount > 0) {
+                    winAmount = Math.floor(winAmount * this.multiplier);
+                    this.winStreak++;
+                    // 连胜倍数增长：每连胜一次，倍数+0.1，最高3倍
+                    this.multiplier = Math.min(3, 1 + this.winStreak * 0.1);
+                    this.multiplierEl.classList.add('active');
+                    setTimeout(() => this.multiplierEl.classList.remove('active'), 500);
+                } else {
+                    // 输了就重置连胜
+                    this.winStreak = 0;
+                    this.multiplier = 1;
+                }
+                
                 this.totalWin += winAmount;
                 this.balance += winAmount;
 
                 // 显示消息
-                this.showResult(reels, payout, winAmount);
+                this.showResult(reels, payout, winAmount, jackpotWin);
 
                 this.updateDisplay();
                 this.isSpinning = false;
@@ -723,10 +869,23 @@
                 }
             }
 
-            showResult(reels, payout, winAmount) {
+            showResult(reels, payout, winAmount, jackpotWin) {
                 const containerElements = [this.reelContainer1, this.reelContainer2, this.reelContainer3];
                 
-                if (payout.amount >= 100) {
+                if (jackpotWin) {
+                    // 累进奖池大奖！
+                    this.flashOverlay.classList.add('active');
+                    setTimeout(() => {
+                        this.flashOverlay.classList.remove('active');
+                    }, 2000);
+                    
+                    containerElements.forEach(container => container.classList.add('jackpot'));
+                    setTimeout(() => {
+                        containerElements.forEach(container => container.classList.remove('jackpot'));
+                    }, 3000);
+                    
+                    this.showMessage(`💰💰💰 JACKPOT！赢得累进奖池 ¥${winAmount}！💰💰💰`, 'jackpot');
+                } else if (payout.amount >= 100) {
                     // 超级大奖特效 - 全屏闪光
                     this.flashOverlay.classList.add('active');
                     setTimeout(() => {
@@ -737,25 +896,32 @@
                     setTimeout(() => {
                         containerElements.forEach(container => container.classList.remove('jackpot'));
                     }, 2400);
-                    this.showMessage(`🎉🎉🎉 超级大奖！赢得 ¥${winAmount}！🎉🎉🎉`, 'jackpot');
+                    
+                    const multiplierText = this.multiplier > 1 ? ` (×${this.multiplier.toFixed(1)} 倍数加成)` : '';
+                    this.showMessage(`🎉🎉🎉 超级大奖！赢得 ¥${winAmount}${multiplierText}！🎉🎉🎉`, 'jackpot');
                 } else if (payout.amount >= 10) {
                     // 大奖特效
                     containerElements.forEach(container => container.classList.add('jackpot'));
                     setTimeout(() => {
                         containerElements.forEach(container => container.classList.remove('jackpot'));
                     }, 2400);
-                    this.showMessage(`🎊 大奖 ${payout.amount}x！赢得 ¥${winAmount}`, 'jackpot');
+                    
+                    const multiplierText = this.multiplier > 1 ? ` (×${this.multiplier.toFixed(1)})` : '';
+                    this.showMessage(`🎊 大奖 ${payout.amount}x！赢得 ¥${winAmount}${multiplierText}`, 'jackpot');
                 } else if (payout.amount > 0) {
                     // 小奖特效
                     containerElements.forEach(container => container.classList.add('win'));
                     setTimeout(() => {
                         containerElements.forEach(container => container.classList.remove('win'));
                     }, 2400);
-                    this.showMessage(`✅ 中奖 ${payout.amount}x！赢得 ¥${winAmount}`, 'win');
+                    
+                    const streakText = this.winStreak > 1 ? ` 🔥 连胜${this.winStreak}次！` : '';
+                    const multiplierText = this.multiplier > 1 ? ` (×${this.multiplier.toFixed(1)})` : '';
+                    this.showMessage(`✅ 中奖 ${payout.amount}x！赢得 ¥${winAmount}${multiplierText}${streakText}`, 'win');
                 } else if (this.checkNearMiss(reels)) {
                     this.showMessage(`🔥 差一点就中了！继续加油！`, 'near-miss');
                 } else {
-                    this.showMessage(`❌ 未中奖`, 'lose');
+                    this.showMessage(`❌ 未中奖 - 连胜中断`, 'lose');
                 }
             }
 
@@ -779,6 +945,9 @@
 
                 this.spinsEl.textContent = this.totalSpins;
                 this.rtpEl.textContent = this.getRTP() + '%';
+                this.jackpotEl.textContent = `¥${this.jackpot.toLocaleString()}`;
+                this.multiplierEl.textContent = `×${this.multiplier.toFixed(1)}`;
+                this.winStreakEl.textContent = this.winStreak;
             }
 
             reset() {
@@ -787,6 +956,9 @@
                     this.totalSpins = 0;
                     this.totalBet = 0;
                     this.totalWin = 0;
+                    this.jackpot = 10000;
+                    this.winStreak = 0;
+                    this.multiplier = 1;
                     
                     // 重置转轮显示
                     [this.reel1, this.reel2, this.reel3].forEach(reel => {
