@@ -107,77 +107,143 @@
             perspective: 1000px;
         }
 
-        .reel {
+        .reel-container {
             background: linear-gradient(180deg, #1a202c 0%, #2d3748 50%, #1a202c 100%);
             border: 4px solid #ffd700;
             border-radius: 15px;
             width: 120px;
             height: 140px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 4em;
             box-shadow: 
                 inset 0 4px 8px rgba(0,0,0,0.3),
                 0 0 20px rgba(255, 215, 0, 0.3);
-            transition: all 0.3s;
             position: relative;
             overflow: hidden;
         }
 
-        .reel::before {
+        .reel-container::before {
             content: '';
             position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(
-                45deg,
-                transparent 30%,
-                rgba(255, 255, 255, 0.1) 50%,
-                transparent 70%
-            );
-            transform: rotate(45deg);
-            animation: shine 3s infinite;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 30%;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.6), transparent);
+            z-index: 2;
+            pointer-events: none;
         }
 
-        @keyframes shine {
-            0%, 100% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-            50% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        .reel-container::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 30%;
+            background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .reel {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            font-size: 4em;
+            transition: transform 0.1s linear;
+        }
+
+        .reel-symbol {
+            height: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
         }
 
         .reel.spinning {
-            animation: spin 0.05s linear infinite;
-            filter: blur(2px);
+            animation: reelSpin 0.1s linear infinite;
         }
 
-        .reel.stopping {
-            animation: bounce 0.5s ease-out;
+        .reel-container.stopping {
+            animation: shake 0.3s ease-out;
         }
 
-        .reel.win {
-            animation: winPulse 0.5s ease-in-out 3;
+        .reel-container.win {
+            animation: winFlash 0.6s ease-in-out 4;
             border-color: #48bb78;
-            box-shadow: 
-                inset 0 4px 8px rgba(0,0,0,0.3),
-                0 0 30px rgba(72, 187, 120, 0.8);
         }
 
-        @keyframes spin {
+        .reel-container.jackpot {
+            animation: jackpotFlash 0.4s ease-in-out 6;
+            border-color: #ffd700;
+        }
+
+        @keyframes reelSpin {
             0% { transform: translateY(0); }
-            100% { transform: translateY(-20px); }
+            100% { transform: translateY(-140px); }
         }
 
-        @keyframes bounce {
-            0% { transform: translateY(-10px); }
-            50% { transform: translateY(5px); }
-            100% { transform: translateY(0); }
+        @keyframes shake {
+            0%, 100% { transform: translateY(0); }
+            25% { transform: translateY(-8px); }
+            75% { transform: translateY(4px); }
         }
 
-        @keyframes winPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
+        @keyframes winFlash {
+            0%, 100% { 
+                box-shadow: 
+                    inset 0 4px 8px rgba(0,0,0,0.3),
+                    0 0 20px rgba(72, 187, 120, 0.3);
+            }
+            50% { 
+                box-shadow: 
+                    inset 0 4px 8px rgba(0,0,0,0.3),
+                    0 0 40px rgba(72, 187, 120, 1),
+                    0 0 60px rgba(72, 187, 120, 0.6);
+                transform: scale(1.05);
+            }
+        }
+
+        @keyframes jackpotFlash {
+            0%, 100% { 
+                box-shadow: 
+                    inset 0 4px 8px rgba(0,0,0,0.3),
+                    0 0 20px rgba(255, 215, 0, 0.3);
+            }
+            50% { 
+                box-shadow: 
+                    inset 0 4px 8px rgba(0,0,0,0.3),
+                    0 0 50px rgba(255, 215, 0, 1),
+                    0 0 80px rgba(255, 215, 0, 0.8),
+                    0 0 100px rgba(255, 215, 0, 0.4);
+                transform: scale(1.08);
+            }
+        }
+
+        /* 全屏闪光效果 */
+        @keyframes screenFlash {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 0.3; }
+        }
+
+        .flash-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.8) 0%, transparent 70%);
+            pointer-events: none;
+            opacity: 0;
+            z-index: 9999;
+        }
+
+        .flash-overlay.active {
+            animation: screenFlash 0.5s ease-out 3;
         }
 
         .controls {
@@ -364,10 +430,42 @@
         </div>
 
         <div class="reels">
-            <div class="reel" id="reel1">🍒</div>
-            <div class="reel" id="reel2">🍒</div>
-            <div class="reel" id="reel3">🍒</div>
+            <div class="reel-container" id="reelContainer1">
+                <div class="reel" id="reel1">
+                    <div class="reel-symbol">🍒</div>
+                    <div class="reel-symbol">🍋</div>
+                    <div class="reel-symbol">🍊</div>
+                    <div class="reel-symbol">⭐</div>
+                    <div class="reel-symbol">7️⃣</div>
+                    <div class="reel-symbol">💎</div>
+                    <div class="reel-symbol">🎲</div>
+                </div>
+            </div>
+            <div class="reel-container" id="reelContainer2">
+                <div class="reel" id="reel2">
+                    <div class="reel-symbol">🍒</div>
+                    <div class="reel-symbol">🍋</div>
+                    <div class="reel-symbol">🍊</div>
+                    <div class="reel-symbol">⭐</div>
+                    <div class="reel-symbol">7️⃣</div>
+                    <div class="reel-symbol">💎</div>
+                    <div class="reel-symbol">🎲</div>
+                </div>
+            </div>
+            <div class="reel-container" id="reelContainer3">
+                <div class="reel" id="reel3">
+                    <div class="reel-symbol">🍒</div>
+                    <div class="reel-symbol">🍋</div>
+                    <div class="reel-symbol">🍊</div>
+                    <div class="reel-symbol">⭐</div>
+                    <div class="reel-symbol">7️⃣</div>
+                    <div class="reel-symbol">💎</div>
+                    <div class="reel-symbol">🎲</div>
+                </div>
+            </div>
         </div>
+
+        <div class="flash-overlay" id="flashOverlay"></div>
 
         <div class="controls">
             <div class="bet-control">
@@ -469,9 +567,13 @@
                 this.reel1 = document.getElementById('reel1');
                 this.reel2 = document.getElementById('reel2');
                 this.reel3 = document.getElementById('reel3');
+                this.reelContainer1 = document.getElementById('reelContainer1');
+                this.reelContainer2 = document.getElementById('reelContainer2');
+                this.reelContainer3 = document.getElementById('reelContainer3');
                 this.spinBtn = document.getElementById('spinBtn');
                 this.messageEl = document.getElementById('message');
                 this.resetBtn = document.getElementById('resetBtn');
+                this.flashOverlay = document.getElementById('flashOverlay');
             }
 
             initEventListeners() {
@@ -582,16 +684,23 @@
             async animateReels(finalReels) {
                 const allSymbols = Object.keys(this.symbols);
                 const reelElements = [this.reel1, this.reel2, this.reel3];
-                const spinDurations = [1000, 1500, 2000]; // 依次停下
+                const containerElements = [this.reelContainer1, this.reelContainer2, this.reelContainer3];
+                const spinDurations = [1200, 1800, 2400]; // 依次停下
 
                 // 开始所有转轮旋转
                 for (let i = 0; i < 3; i++) {
                     const reel = reelElements[i];
+                    const container = containerElements[i];
                     const duration = spinDurations[i];
                     
-                    // 快速滚动动画
+                    reel.classList.add('spinning');
+                    
+                    // 快速滚动动画 - 更新所有符号
                     const interval = setInterval(() => {
-                        reel.textContent = allSymbols[Math.floor(Math.random() * allSymbols.length)];
+                        const symbols = reel.querySelectorAll('.reel-symbol');
+                        symbols.forEach(symbol => {
+                            symbol.textContent = allSymbols[Math.floor(Math.random() * allSymbols.length)];
+                        });
                     }, 50);
 
                     // 等待指定时间后停止
@@ -600,35 +709,48 @@
                     
                     // 停止动画
                     reel.classList.remove('spinning');
-                    reel.classList.add('stopping');
+                    container.classList.add('stopping');
                     
-                    // 显示最终结果
-                    reel.textContent = finalReels[i];
+                    // 显示最终结果（设置第一个符号为结果）
+                    const symbols = reel.querySelectorAll('.reel-symbol');
+                    symbols[0].textContent = finalReels[i];
                     
-                    // 播放停止音效（模拟）
-                    await new Promise(resolve => setTimeout(resolve, 100));
-                    reel.classList.remove('stopping');
+                    // 重置位置
+                    reel.style.transform = 'translateY(0)';
+                    
+                    await new Promise(resolve => setTimeout(resolve, 300));
+                    container.classList.remove('stopping');
                 }
             }
 
             showResult(reels, payout, winAmount) {
-                const reelElements = [this.reel1, this.reel2, this.reel3];
+                const containerElements = [this.reelContainer1, this.reelContainer2, this.reelContainer3];
                 
                 if (payout.amount >= 100) {
-                    // 超级大奖特效
-                    reelElements.forEach(reel => reel.classList.add('win'));
+                    // 超级大奖特效 - 全屏闪光
+                    this.flashOverlay.classList.add('active');
                     setTimeout(() => {
-                        reelElements.forEach(reel => reel.classList.remove('win'));
+                        this.flashOverlay.classList.remove('active');
                     }, 1500);
-                    this.showMessage(`🎉 超级大奖！赢得 ¥${winAmount}！`, 'jackpot');
+                    
+                    containerElements.forEach(container => container.classList.add('jackpot'));
+                    setTimeout(() => {
+                        containerElements.forEach(container => container.classList.remove('jackpot'));
+                    }, 2400);
+                    this.showMessage(`🎉🎉🎉 超级大奖！赢得 ¥${winAmount}！🎉🎉🎉`, 'jackpot');
                 } else if (payout.amount >= 10) {
                     // 大奖特效
-                    reelElements.forEach(reel => reel.classList.add('win'));
+                    containerElements.forEach(container => container.classList.add('jackpot'));
                     setTimeout(() => {
-                        reelElements.forEach(reel => reel.classList.remove('win'));
-                    }, 1000);
+                        containerElements.forEach(container => container.classList.remove('jackpot'));
+                    }, 2400);
                     this.showMessage(`🎊 大奖 ${payout.amount}x！赢得 ¥${winAmount}`, 'jackpot');
                 } else if (payout.amount > 0) {
+                    // 小奖特效
+                    containerElements.forEach(container => container.classList.add('win'));
+                    setTimeout(() => {
+                        containerElements.forEach(container => container.classList.remove('win'));
+                    }, 2400);
                     this.showMessage(`✅ 中奖 ${payout.amount}x！赢得 ¥${winAmount}`, 'win');
                 } else if (this.checkNearMiss(reels)) {
                     this.showMessage(`🔥 差一点就中了！继续加油！`, 'near-miss');
@@ -665,9 +787,14 @@
                     this.totalSpins = 0;
                     this.totalBet = 0;
                     this.totalWin = 0;
-                    this.reel1.textContent = '🍒';
-                    this.reel2.textContent = '🍒';
-                    this.reel3.textContent = '🍒';
+                    
+                    // 重置转轮显示
+                    [this.reel1, this.reel2, this.reel3].forEach(reel => {
+                        const symbols = reel.querySelectorAll('.reel-symbol');
+                        symbols[0].textContent = '🍒';
+                        reel.style.transform = 'translateY(0)';
+                    });
+                    
                     this.messageEl.textContent = '';
                     this.messageEl.className = 'message';
                     this.updateDisplay();
