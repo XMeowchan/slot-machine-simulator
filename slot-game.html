@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎰 老虎机模拟器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: #2d3748;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #ffd700;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #a0aec0;
+            margin-bottom: 30px;
+            font-size: 0.9em;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-box {
+            background: #1a202c;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-label {
+            color: #a0aec0;
+            font-size: 0.8em;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            color: #fff;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .stat-value.positive {
+            color: #48bb78;
+        }
+
+        .stat-value.negative {
+            color: #f56565;
+        }
+
+        .reels {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 30px 0;
+            perspective: 1000px;
+        }
+
+        .reel {
+            background: #1a202c;
+            border: 4px solid #ffd700;
+            border-radius: 15px;
+            width: 120px;
+            height: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4em;
+            box-shadow: inset 0 4px 8px rgba(0,0,0,0.3);
+            transition: transform 0.3s;
+        }
+
+        .reel.spinning {
+            animation: spin 0.1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotateX(0deg); }
+            100% { transform: rotateX(360deg); }
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .bet-control {
+            flex: 1;
+            background: #1a202c;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .bet-control label {
+            color: #a0aec0;
+            font-size: 0.9em;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .bet-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .bet-btn {
+            flex: 1;
+            padding: 8px;
+            background: #4a5568;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background 0.2s;
+        }
+
+        .bet-btn:hover {
+            background: #718096;
+        }
+
+        .bet-btn.active {
+            background: #667eea;
+        }
+
+        .spin-button {
+            width: 100%;
+            padding: 20px;
+            font-size: 1.5em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(245, 87, 108, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .spin-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(245, 87, 108, 0.6);
+        }
+
+        .spin-button:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .spin-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .message {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 1.2em;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .message.win {
+            background: rgba(72, 187, 120, 0.2);
+            color: #48bb78;
+            border: 2px solid #48bb78;
+        }
+
+        .message.lose {
+            background: rgba(245, 101, 101, 0.2);
+            color: #f56565;
+            border: 2px solid #f56565;
+        }
+
+        .message.jackpot {
+            background: rgba(255, 215, 0, 0.2);
+            color: #ffd700;
+            border: 2px solid #ffd700;
+            animation: pulse 1s infinite;
+        }
+
+        .message.near-miss {
+            background: rgba(237, 137, 54, 0.2);
+            color: #ed8936;
+            border: 2px solid #ed8936;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .paytable {
+            background: #1a202c;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .paytable h3 {
+            color: #ffd700;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .paytable-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            color: #a0aec0;
+            border-bottom: 1px solid #2d3748;
+        }
+
+        .paytable-row:last-child {
+            border-bottom: none;
+        }
+
+        .paytable-combo {
+            font-size: 1.2em;
+        }
+
+        .reset-button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 15px;
+            background: #4a5568;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background 0.2s;
+        }
+
+        .reset-button:hover {
+            background: #718096;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎰 老虎机模拟器</h1>
+        <p class="subtitle">体验真实赌场的数学陷阱</p>
+
+        <div class="stats">
+            <div class="stat-box">
+                <div class="stat-label">余额</div>
+                <div class="stat-value" id="balance">¥1000</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">总旋转</div>
+                <div class="stat-value" id="spins">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">实际RTP</div>
+                <div class="stat-value" id="rtp">--</div>
+            </div>
+        </div>
+
+        <div class="reels">
+            <div class="reel" id="reel1">🍒</div>
+            <div class="reel" id="reel2">🍒</div>
+            <div class="reel" id="reel3">🍒</div>
+        </div>
+
+        <div class="controls">
+            <div class="bet-control">
+                <label>下注金额</label>
+                <div class="bet-buttons">
+                    <button class="bet-btn" data-bet="10">¥10</button>
+                    <button class="bet-btn active" data-bet="20">¥20</button>
+                    <button class="bet-btn" data-bet="50">¥50</button>
+                    <button class="bet-btn" data-bet="100">¥100</button>
+                </div>
+            </div>
+        </div>
+
+        <button class="spin-button" id="spinBtn">🎰 旋转 (¥20)</button>
+
+        <div class="message" id="message"></div>
+
+        <div class="paytable">
+            <h3>💰 赔付表</h3>
+            <div class="paytable-row">
+                <span class="paytable-combo">💎💎💎</span>
+                <span>1000x</span>
+            </div>
+            <div class="paytable-row">
+                <span class="paytable-combo">7️⃣7️⃣7️⃣</span>
+                <span>100x</span>
+            </div>
+            <div class="paytable-row">
+                <span class="paytable-combo">⭐⭐⭐</span>
+                <span>40x</span>
+            </div>
+            <div class="paytable-row">
+                <span class="paytable-combo">🍊🍊🍊</span>
+                <span>25x</span>
+            </div>
+            <div class="paytable-row">
+                <span class="paytable-combo">🍋🍋🍋</span>
+                <span>15x</span>
+            </div>
+            <div class="paytable-row">
+                <span class="paytable-combo">🍒🍒🍒</span>
+                <span>10x</span>
+            </div>
+            <div class="paytable-row">
+                <span class="paytable-combo">🍒🍒</span>
+                <span>5x</span>
+            </div>
+            <div class="paytable-row">
+                <span class="paytable-combo">🍒</span>
+                <span>2x</span>
+            </div>
+        </div>
+
+        <button class="reset-button" id="resetBtn">🔄 重置游戏</button>
+    </div>
+
+    <script>
+        class SlotGame {
+            constructor() {
+                this.symbols = {
+                    '💎': { weight: 1 },
+                    '7️⃣': { weight: 8 },
+                    '⭐': { weight: 15 },
+                    '🍊': { weight: 25 },
+                    '🍋': { weight: 30 },
+                    '🍒': { weight: 35 },
+                    '🎲': { weight: 142 }
+                };
+
+                this.payouts = {
+                    '💎💎💎': 1000,
+                    '7️⃣7️⃣7️⃣': 100,
+                    '⭐⭐⭐': 40,
+                    '🍊🍊🍊': 25,
+                    '🍋🍋🍋': 15,
+                    '🍒🍒🍒': 10,
+                    '🍒🍒': 5,
+                    '🍒': 2
+                };
+
+                this.totalWeight = Object.values(this.symbols).reduce((sum, s) => sum + s.weight, 0);
+                
+                this.balance = 1000;
+                this.currentBet = 20;
+                this.totalSpins = 0;
+                this.totalBet = 0;
+                this.totalWin = 0;
+                this.isSpinning = false;
+
+                this.initElements();
+                this.initEventListeners();
+                this.updateDisplay();
+            }
+
+            initElements() {
+                this.balanceEl = document.getElementById('balance');
+                this.spinsEl = document.getElementById('spins');
+                this.rtpEl = document.getElementById('rtp');
+                this.reel1 = document.getElementById('reel1');
+                this.reel2 = document.getElementById('reel2');
+                this.reel3 = document.getElementById('reel3');
+                this.spinBtn = document.getElementById('spinBtn');
+                this.messageEl = document.getElementById('message');
+                this.resetBtn = document.getElementById('resetBtn');
+            }
+
+            initEventListeners() {
+                this.spinBtn.addEventListener('click', () => this.spin());
+                this.resetBtn.addEventListener('click', () => this.reset());
+
+                document.querySelectorAll('.bet-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('.bet-btn').forEach(b => b.classList.remove('active'));
+                        e.target.classList.add('active');
+                        this.currentBet = parseInt(e.target.dataset.bet);
+                        this.spinBtn.textContent = `🎰 旋转 (¥${this.currentBet})`;
+                    });
+                });
+            }
+
+            spinReel() {
+                const random = Math.floor(Math.random() * this.totalWeight);
+                let cumulative = 0;
+                
+                for (const [symbol, data] of Object.entries(this.symbols)) {
+                    cumulative += data.weight;
+                    if (random < cumulative) {
+                        return symbol;
+                    }
+                }
+                return '🎲';
+            }
+
+            calculatePayout(reels) {
+                const key = reels.join('');
+                
+                if (this.payouts[key]) {
+                    return { amount: this.payouts[key], type: key };
+                }
+                
+                const cherryCount = reels.filter(r => r === '🍒').length;
+                if (cherryCount === 2) {
+                    return { amount: this.payouts['🍒🍒'], type: '🍒🍒' };
+                }
+                if (cherryCount === 1) {
+                    return { amount: this.payouts['🍒'], type: '🍒' };
+                }
+                
+                return { amount: 0, type: 'loss' };
+            }
+
+            checkNearMiss(reels) {
+                const highValue = ['💎', '7️⃣', '⭐'];
+                return highValue.includes(reels[0]) && reels[0] === reels[1] && reels[0] !== reels[2];
+            }
+
+            async spin() {
+                if (this.isSpinning || this.balance < this.currentBet) {
+                    if (this.balance < this.currentBet) {
+                        this.showMessage('余额不足！', 'lose');
+                    }
+                    return;
+                }
+
+                this.isSpinning = true;
+                this.spinBtn.disabled = true;
+                this.messageEl.textContent = '';
+                this.messageEl.className = 'message';
+
+                // 扣除下注
+                this.balance -= this.currentBet;
+                this.totalBet += this.currentBet;
+                this.totalSpins++;
+
+                // 动画效果
+                [this.reel1, this.reel2, this.reel3].forEach(reel => {
+                    reel.classList.add('spinning');
+                });
+
+                // 生成结果
+                const reels = [this.spinReel(), this.spinReel(), this.spinReel()];
+
+                // 模拟旋转延迟
+                await this.animateReels(reels);
+
+                // 停止动画
+                [this.reel1, this.reel2, this.reel3].forEach(reel => {
+                    reel.classList.remove('spinning');
+                });
+
+                // 计算结果
+                const payout = this.calculatePayout(reels);
+                const winAmount = payout.amount * this.currentBet;
+                this.totalWin += winAmount;
+                this.balance += winAmount;
+
+                // 显示消息
+                this.showResult(reels, payout, winAmount);
+
+                this.updateDisplay();
+                this.isSpinning = false;
+                this.spinBtn.disabled = false;
+
+                // 检查破产
+                if (this.balance < 10) {
+                    setTimeout(() => {
+                        alert(`游戏结束！\n\n总旋转: ${this.totalSpins} 次\n总投注: ¥${this.totalBet}\n总赢得: ¥${this.totalWin}\n实际RTP: ${this.getRTP()}%\n\n点击重置开始新游戏`);
+                    }, 1000);
+                }
+            }
+
+            async animateReels(finalReels) {
+                const allSymbols = Object.keys(this.symbols);
+                const reelElements = [this.reel1, this.reel2, this.reel3];
+                const delays = [800, 1200, 1600];
+
+                for (let i = 0; i < 3; i++) {
+                    const reel = reelElements[i];
+                    const delay = delays[i];
+                    
+                    // 快速滚动
+                    const interval = setInterval(() => {
+                        reel.textContent = allSymbols[Math.floor(Math.random() * allSymbols.length)];
+                    }, 50);
+
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    clearInterval(interval);
+                    
+                    // 显示最终结果
+                    reel.textContent = finalReels[i];
+                }
+            }
+
+            showResult(reels, payout, winAmount) {
+                if (payout.amount >= 100) {
+                    this.showMessage(`🎉 超级大奖！赢得 ¥${winAmount}！`, 'jackpot');
+                } else if (payout.amount > 0) {
+                    this.showMessage(`✅ 中奖 ${payout.amount}x！赢得 ¥${winAmount}`, 'win');
+                } else if (this.checkNearMiss(reels)) {
+                    this.showMessage(`🔥 差一点就中了！继续加油！`, 'near-miss');
+                } else {
+                    this.showMessage(`❌ 未中奖`, 'lose');
+                }
+            }
+
+            showMessage(text, type) {
+                this.messageEl.textContent = text;
+                this.messageEl.className = `message ${type}`;
+            }
+
+            getRTP() {
+                return this.totalBet > 0 ? ((this.totalWin / this.totalBet) * 100).toFixed(1) : '--';
+            }
+
+            updateDisplay() {
+                this.balanceEl.textContent = `¥${this.balance}`;
+                this.balanceEl.className = 'stat-value';
+                if (this.balance > 1000) {
+                    this.balanceEl.classList.add('positive');
+                } else if (this.balance < 1000) {
+                    this.balanceEl.classList.add('negative');
+                }
+
+                this.spinsEl.textContent = this.totalSpins;
+                this.rtpEl.textContent = this.getRTP() + '%';
+            }
+
+            reset() {
+                if (confirm('确定要重置游戏吗？所有数据将被清除。')) {
+                    this.balance = 1000;
+                    this.totalSpins = 0;
+                    this.totalBet = 0;
+                    this.totalWin = 0;
+                    this.reel1.textContent = '🍒';
+                    this.reel2.textContent = '🍒';
+                    this.reel3.textContent = '🍒';
+                    this.messageEl.textContent = '';
+                    this.messageEl.className = 'message';
+                    this.updateDisplay();
+                }
+            }
+        }
+
+        // 启动游戏
+        const game = new SlotGame();
+    </script>
+</body>
+</html>
