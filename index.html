@@ -671,115 +671,53 @@
                 this.winStreak = 0; // 连胜次数
                 this.multiplier = 1; // 当前倍数
                 
-                // 音效系统
-                this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                this.soundEnabled = true;
+                // 加载存档
+                this.loadGame();
 
                 this.initElements();
                 this.initEventListeners();
                 this.updateDisplay();
             }
 
-            // 音效生成器
-            playSound(type) {
-                if (!this.soundEnabled || !this.audioContext) return;
-                
+            // 保存游戏
+            saveGame() {
+                const saveData = {
+                    balance: this.balance,
+                    totalSpins: this.totalSpins,
+                    totalBet: this.totalBet,
+                    totalWin: this.totalWin,
+                    jackpot: this.jackpot,
+                    winStreak: this.winStreak,
+                    multiplier: this.multiplier,
+                    currentBet: this.currentBet,
+                    timestamp: Date.now()
+                };
+                localStorage.setItem('slotMachineGame', JSON.stringify(saveData));
+            }
+
+            // 加载游戏
+            loadGame() {
                 try {
-                    const ctx = this.audioContext;
-                    const now = ctx.currentTime;
-                
-                switch(type) {
-                    case 'spin':
-                        // 旋转音效 - 快速的嗡嗡声
-                        const spinOsc = ctx.createOscillator();
-                        const spinGain = ctx.createGain();
-                        spinOsc.connect(spinGain);
-                        spinGain.connect(ctx.destination);
-                        spinOsc.frequency.setValueAtTime(100, now);
-                        spinOsc.frequency.exponentialRampToValueAtTime(200, now + 0.1);
-                        spinGain.gain.setValueAtTime(0.1, now);
-                        spinGain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
-                        spinOsc.start(now);
-                        spinOsc.stop(now + 0.1);
-                        break;
-                        
-                    case 'stop':
-                        // 停止音效 - 咔哒声
-                        const stopOsc = ctx.createOscillator();
-                        const stopGain = ctx.createGain();
-                        stopOsc.connect(stopGain);
-                        stopGain.connect(ctx.destination);
-                        stopOsc.frequency.setValueAtTime(150, now);
-                        stopGain.gain.setValueAtTime(0.2, now);
-                        stopGain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
-                        stopOsc.start(now);
-                        stopOsc.stop(now + 0.05);
-                        break;
-                        
-                    case 'win':
-                        // 中奖音效 - 上升音阶
-                        const frequencies = [523, 659, 784, 1047]; // C-E-G-C
-                        frequencies.forEach((freq, i) => {
-                            const osc = ctx.createOscillator();
-                            const gain = ctx.createGain();
-                            osc.connect(gain);
-                            gain.connect(ctx.destination);
-                            osc.frequency.setValueAtTime(freq, now + i * 0.1);
-                            gain.gain.setValueAtTime(0.15, now + i * 0.1);
-                            gain.gain.exponentialRampToValueAtTime(0.01, now + i * 0.1 + 0.2);
-                            osc.start(now + i * 0.1);
-                            osc.stop(now + i * 0.1 + 0.2);
-                        });
-                        break;
-                        
-                    case 'bigwin':
-                        // 大奖音效 - 华丽的上升音阶
-                        const bigWinFreqs = [262, 330, 392, 523, 659, 784, 1047];
-                        bigWinFreqs.forEach((freq, i) => {
-                            const osc = ctx.createOscillator();
-                            const gain = ctx.createGain();
-                            osc.connect(gain);
-                            gain.connect(ctx.destination);
-                            osc.frequency.setValueAtTime(freq, now + i * 0.08);
-                            gain.gain.setValueAtTime(0.2, now + i * 0.08);
-                            gain.gain.exponentialRampToValueAtTime(0.01, now + i * 0.08 + 0.3);
-                            osc.start(now + i * 0.08);
-                            osc.stop(now + i * 0.08 + 0.3);
-                        });
-                        break;
-                        
-                    case 'jackpot':
-                        // 累进奖池音效 - 超级华丽
-                        for (let i = 0; i < 20; i++) {
-                            const osc = ctx.createOscillator();
-                            const gain = ctx.createGain();
-                            osc.connect(gain);
-                            gain.connect(ctx.destination);
-                            osc.frequency.setValueAtTime(200 + i * 50, now + i * 0.05);
-                            gain.gain.setValueAtTime(0.15, now + i * 0.05);
-                            gain.gain.exponentialRampToValueAtTime(0.01, now + i * 0.05 + 0.2);
-                            osc.start(now + i * 0.05);
-                            osc.stop(now + i * 0.05 + 0.2);
-                        }
-                        break;
-                        
-                    case 'lose':
-                        // 输了音效 - 下降音
-                        const loseOsc = ctx.createOscillator();
-                        const loseGain = ctx.createGain();
-                        loseOsc.connect(loseGain);
-                        loseGain.connect(ctx.destination);
-                        loseOsc.frequency.setValueAtTime(400, now);
-                        loseOsc.frequency.exponentialRampToValueAtTime(200, now + 0.3);
-                        loseGain.gain.setValueAtTime(0.1, now);
-                        loseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
-                        loseOsc.start(now);
-                        loseOsc.stop(now + 0.3);
-                        break;
-                }
+                    const saved = localStorage.getItem('slotMachineGame');
+                    if (saved) {
+                        const data = JSON.parse(saved);
+                        this.balance = data.balance || 1000;
+                        this.totalSpins = data.totalSpins || 0;
+                        this.totalBet = data.totalBet || 0;
+                        this.totalWin = data.totalWin || 0;
+                        this.jackpot = data.jackpot || 10000;
+                        this.winStreak = data.winStreak || 0;
+                        this.multiplier = data.multiplier || 1;
+                        this.currentBet = data.currentBet || 20;
+                    }
                 } catch (e) {
-                    console.error('音效播放失败:', e);
+                    console.error('加载存档失败:', e);
                 }
+            }
+
+            // 清除存档
+            clearSave() {
+                localStorage.removeItem('slotMachineGame');
             }
 
                 this.initElements();
@@ -807,14 +745,7 @@
             }
 
             initEventListeners() {
-                this.spinBtn.addEventListener('click', () => {
-                    // 首次点击时初始化音频上下文
-                    if (this.audioContext.state === 'suspended') {
-                        this.audioContext.resume();
-                    }
-                    this.spin();
-                });
-                
+                this.spinBtn.addEventListener('click', () => this.spin());
                 this.resetBtn.addEventListener('click', () => this.reset());
 
                 document.querySelectorAll('.bet-btn').forEach(btn => {
@@ -875,9 +806,6 @@
                 this.spinBtn.disabled = true;
                 this.messageEl.textContent = '';
                 this.messageEl.className = 'message';
-                
-                // 播放旋转音效
-                this.playSound('spin');
 
                 // 扣除下注
                 this.balance -= this.currentBet;
@@ -939,6 +867,9 @@
                 this.updateDisplay();
                 this.isSpinning = false;
                 this.spinBtn.disabled = false;
+                
+                // 自动保存
+                this.saveGame();
 
                 // 检查破产
                 if (this.balance < 10) {
@@ -974,9 +905,6 @@
                     await new Promise(resolve => setTimeout(resolve, duration));
                     clearInterval(interval);
                     
-                    // 播放停止音效
-                    this.playSound('stop');
-                    
                     // 停止动画
                     reel.classList.remove('spinning');
                     container.classList.add('stopping');
@@ -998,8 +926,6 @@
                 
                 if (jackpotWin) {
                     // 累进奖池大奖！
-                    this.playSound('jackpot');
-                    
                     this.flashOverlay.classList.add('active');
                     setTimeout(() => {
                         this.flashOverlay.classList.remove('active');
@@ -1013,8 +939,6 @@
                     this.showMessage(`💰💰💰 JACKPOT！赢得累进奖池 ¥${winAmount}！💰💰💰`, 'jackpot');
                 } else if (payout.amount >= 100) {
                     // 超级大奖特效 - 全屏闪光
-                    this.playSound('bigwin');
-                    
                     this.flashOverlay.classList.add('active');
                     setTimeout(() => {
                         this.flashOverlay.classList.remove('active');
@@ -1029,8 +953,6 @@
                     this.showMessage(`🎉🎉🎉 超级大奖！赢得 ¥${winAmount}${multiplierText}！🎉🎉🎉`, 'jackpot');
                 } else if (payout.amount >= 10) {
                     // 大奖特效
-                    this.playSound('bigwin');
-                    
                     containerElements.forEach(container => container.classList.add('jackpot'));
                     setTimeout(() => {
                         containerElements.forEach(container => container.classList.remove('jackpot'));
@@ -1040,8 +962,6 @@
                     this.showMessage(`🎊 大奖 ${payout.amount}x！赢得 ¥${winAmount}${multiplierText}`, 'jackpot');
                 } else if (payout.amount > 0) {
                     // 小奖特效
-                    this.playSound('win');
-                    
                     containerElements.forEach(container => container.classList.add('win'));
                     setTimeout(() => {
                         containerElements.forEach(container => container.classList.remove('win'));
@@ -1053,7 +973,6 @@
                 } else if (this.checkNearMiss(reels)) {
                     this.showMessage(`🔥 差一点就中了！继续加油！`, 'near-miss');
                 } else {
-                    this.playSound('lose');
                     this.showMessage(`❌ 未中奖 - 连胜中断`, 'lose');
                 }
             }
@@ -1084,7 +1003,7 @@
             }
 
             reset() {
-                if (confirm('确定要重置游戏吗？所有数据将被清除。')) {
+                if (confirm('确定要重置游戏吗？所有数据（包括存档）将被清除。')) {
                     this.balance = 1000;
                     this.totalSpins = 0;
                     this.totalBet = 0;
@@ -1092,6 +1011,10 @@
                     this.jackpot = 10000;
                     this.winStreak = 0;
                     this.multiplier = 1;
+                    this.currentBet = 20;
+                    
+                    // 清除存档
+                    this.clearSave();
                     
                     // 重置转轮显示
                     [this.reel1, this.reel2, this.reel3].forEach(reel => {
