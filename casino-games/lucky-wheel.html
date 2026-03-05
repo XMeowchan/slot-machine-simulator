@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎡 幸运大转盘 - 赌场模拟器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(102, 126, 234, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(118, 75, 162, 0.3) 0%, transparent 50%),
+                linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            animation: bgShift 10s ease-in-out infinite;
+        }
+
+        @keyframes bgShift {
+            0%, 100% { filter: hue-rotate(0deg); }
+            50% { filter: hue-rotate(20deg); }
+        }
+
+        .container {
+            background: linear-gradient(145deg, #2d3748 0%, #1a202c 100%);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 
+                0 20px 60px rgba(0,0,0,0.5),
+                0 0 100px rgba(102, 126, 234, 0.2);
+            max-width: 600px;
+            width: 100%;
+            border: 2px solid rgba(255, 215, 0, 0.2);
+        }
+
+        h1 {
+            text-align: center;
+            color: #ffd700;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 
+                2px 2px 4px rgba(0,0,0,0.5),
+                0 0 20px rgba(255, 215, 0, 0.5);
+            animation: titleGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes titleGlow {
+            0%, 100% { text-shadow: 2px 2px 4px rgba(0,0,0,0.5), 0 0 20px rgba(255, 215, 0, 0.5); }
+            50% { text-shadow: 2px 2px 4px rgba(0,0,0,0.5), 0 0 30px rgba(255, 215, 0, 0.8); }
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #a0aec0;
+            margin-bottom: 30px;
+            font-size: 0.9em;
+        }
+
+        .back-btn {
+            display: inline-block;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            text-decoration: none;
+            color: white;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+            font-size: 0.9em;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-item {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+            padding: 20px 15px;
+            border-radius: 12px;
+            text-align: center;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .stat-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .stat-item:hover::before {
+            left: 100%;
+        }
+
+        .stat-item:hover {
+            border-color: #ffd700;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .stat-label {
+            color: #a0aec0;
+            font-size: 0.85em;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #ffd700;
+            text-shadow: 0 2px 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .stat-value.positive {
+            color: #10b981;
+            text-shadow: 0 2px 10px rgba(16, 185, 129, 0.5);
+        }
+
+        .stat-value.negative {
+            color: #ef4444;
+            text-shadow: 0 2px 10px rgba(239, 68, 68, 0.5);
+        }
+
+        .wheel-container {
+            position: relative;
+            width: 100%;
+            max-width: 450px;
+            aspect-ratio: 1;
+            margin: 0 auto 30px;
+            filter: drop-shadow(0 10px 30px rgba(255, 215, 0, 0.3));
+        }
+
+        .wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            position: relative;
+            transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+            box-shadow: 
+                0 0 0 8px rgba(255, 215, 0, 0.3),
+                0 0 0 12px rgba(255, 215, 0, 0.2),
+                0 0 60px rgba(255, 215, 0, 0.4),
+                inset 0 0 40px rgba(0, 0, 0, 0.3);
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+        }
+
+        .wheel-pointer {
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 25px solid transparent;
+            border-right: 25px solid transparent;
+            border-top: 50px solid #ff4444;
+            filter: drop-shadow(0 8px 15px rgba(255, 68, 68, 0.6));
+            z-index: 10;
+            animation: pointerPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pointerPulse {
+            0%, 100% { transform: translateX(-50%) scale(1); }
+            50% { transform: translateX(-50%) scale(1.1); }
+        }
+
+        .wheel-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(145deg, #ffd700, #ffed4e);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            box-shadow: 
+                0 0 0 5px #fff,
+                0 0 0 8px #ffd700,
+                0 8px 25px rgba(0,0,0,0.5),
+                inset 0 2px 10px rgba(255, 255, 255, 0.5);
+            z-index: 5;
+            animation: centerGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes centerGlow {
+            0%, 100% { box-shadow: 0 0 0 5px #fff, 0 0 0 8px #ffd700, 0 8px 25px rgba(0,0,0,0.5), inset 0 2px 10px rgba(255, 255, 255, 0.5); }
+            50% { box-shadow: 0 0 0 5px #fff, 0 0 0 8px #ffd700, 0 8px 35px rgba(255, 215, 0, 0.8), inset 0 2px 10px rgba(255, 255, 255, 0.5); }
+        }
+
+        .controls {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .bet-btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%);
+            border: 2px solid rgba(255, 215, 0, 0.4);
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1.1em;
+            font-weight: bold;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bet-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 215, 0, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s;
+        }
+
+        .bet-btn:hover::before {
+            width: 200%;
+            height: 200%;
+        }
+
+        .bet-btn:hover {
+            border-color: #ffd700;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
+        }
+
+        .bet-btn.active {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            color: #1a202c;
+            border-color: #ffd700;
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.6);
+            transform: scale(1.05);
+        }
+
+        .bet-btn.active::before {
+            display: none;
+        }
+
+        .spin-btn {
+            margin-top: 25px;
+            padding: 18px 60px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border: none;
+            border-radius: 15px;
+            color: white;
+            font-size: 1.4em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 
+                0 8px 25px rgba(16, 185, 129, 0.4),
+                inset 0 2px 10px rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .spin-btn::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent 30%,
+                rgba(255, 255, 255, 0.3) 50%,
+                transparent 70%
+            );
+            transform: rotate(45deg);
+            animation: btnShine 3s linear infinite;
+        }
+
+        @keyframes btnShine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        .spin-btn:hover:not(:disabled) {
+            transform: translateY(-4px) scale(1.05);
+            box-shadow: 
+                0 12px 35px rgba(16, 185, 129, 0.6),
+                inset 0 2px 10px rgba(255, 255, 255, 0.3);
+        }
+
+        .spin-btn:active:not(:disabled) {
+            transform: translateY(-2px) scale(1.02);
+        }
+
+        .spin-btn:disabled {
+            background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .spin-btn:disabled::before {
+            display: none;
+        }
+
+        .prize-table {
+            margin-top: 30px;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .prize-table h3 {
+            color: #ffd700;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 1.3em;
+            text-shadow: 0 2px 10px rgba(255, 215, 0, 0.3);
+        }
+
+        .prize-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+            margin-bottom: 8px;
+            border-radius: 8px;
+            font-size: 0.95em;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+            color: #e2e8f0;
+        }
+
+        .prize-row:hover {
+            background: linear-gradient(90deg, rgba(255, 215, 0, 0.1) 0%, rgba(255, 215, 0, 0.05) 100%);
+            border-left-color: #ffd700;
+            transform: translateX(5px);
+        }
+
+        .prize-name {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #f7fafc;
+        }
+
+        .prize-icon {
+            font-size: 1.5em;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+        }
+
+        .probability-section {
+            margin-top: 25px;
+            padding: 25px;
+            background: linear-gradient(145deg, rgba(26, 32, 44, 0.8) 0%, rgba(45, 55, 72, 0.6) 100%);
+            border: 2px solid rgba(255, 215, 0, 0.4);
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .probability-section h4 {
+            color: #ffd700;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            text-shadow: 0 2px 10px rgba(255, 215, 0, 0.5);
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .recent-results {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 18px;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%);
+            border-radius: 10px;
+            border-left: 4px solid transparent;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .result-item.empty {
+            justify-content: center;
+            color: #718096;
+            font-style: italic;
+            border-left: none;
+        }
+
+        .result-item:hover:not(.empty) {
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .result-item.profit-positive {
+            border-left-color: #10b981;
+            background: linear-gradient(90deg, rgba(16, 185, 129, 0.2) 0%, rgba(16, 185, 129, 0.05) 100%);
+        }
+
+        .result-item.profit-negative {
+            border-left-color: #ef4444;
+            background: linear-gradient(90deg, rgba(239, 68, 68, 0.15) 0%, rgba(239, 68, 68, 0.05) 100%);
+        }
+
+        .result-emoji {
+            font-size: 1.8em;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        }
+
+        .result-prize {
+            flex: 1;
+            margin-left: 15px;
+            color: #f7fafc;
+            font-weight: 600;
+            font-size: 1.05em;
+        }
+
+        .result-profit {
+            font-weight: bold;
+            font-size: 1.2em;
+            text-shadow: 0 2px 8px currentColor;
+        }
+
+        .profit-positive .result-profit {
+            color: #10b981;
+            animation: profitGlow 2s ease-in-out infinite;
+        }
+
+        .profit-negative .result-profit {
+            color: #ef4444;
+        }
+
+        @keyframes profitGlow {
+            0%, 100% { text-shadow: 0 2px 8px rgba(16, 185, 129, 0.5); }
+            50% { text-shadow: 0 2px 15px rgba(16, 185, 129, 0.8); }
+        }
+
+        .prob-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+            color: #f7fafc;
+        }
+
+        .prob-display {
+            color: #e2e8f0;
+            font-weight: 500;
+        }
+
+        .prob-real {
+            color: #ff6b6b;
+            font-weight: bold;
+        }
+
+        .result-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: linear-gradient(145deg, #2d3748 0%, #1a202c 100%);
+            padding: 50px 40px;
+            border-radius: 25px;
+            border: 4px solid #ffd700;
+            box-shadow: 
+                0 0 100px rgba(255, 215, 0, 0.6),
+                inset 0 2px 20px rgba(255, 215, 0, 0.1);
+            z-index: 1000;
+            text-align: center;
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            max-width: 90%;
+        }
+
+        .result-popup.show {
+            transform: translate(-50%, -50%) scale(1);
+            animation: popupBounce 0.6s ease-out;
+        }
+
+        @keyframes popupBounce {
+            0% { transform: translate(-50%, -50%) scale(0); }
+            50% { transform: translate(-50%, -50%) scale(1.1); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+
+        .result-popup .icon {
+            font-size: 5em;
+            margin-bottom: 20px;
+            animation: iconSpin 0.6s ease-out;
+            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.3));
+        }
+
+        @keyframes iconSpin {
+            0% { transform: rotate(-180deg) scale(0); }
+            100% { transform: rotate(0) scale(1); }
+        }
+
+        .result-popup .title {
+            font-size: 2em;
+            color: #ffd700;
+            margin-bottom: 15px;
+            text-shadow: 
+                0 0 10px rgba(255, 215, 0, 0.8),
+                0 0 20px rgba(255, 215, 0, 0.6),
+                0 2px 15px rgba(255, 215, 0, 0.5);
+            font-weight: bold;
+            animation: titleShine 1.5s ease-in-out infinite;
+        }
+
+        @keyframes titleShine {
+            0%, 100% { 
+                text-shadow: 
+                    0 0 10px rgba(255, 215, 0, 0.8),
+                    0 0 20px rgba(255, 215, 0, 0.6),
+                    0 2px 15px rgba(255, 215, 0, 0.5);
+            }
+            50% { 
+                text-shadow: 
+                    0 0 20px rgba(255, 215, 0, 1),
+                    0 0 30px rgba(255, 215, 0, 0.8),
+                    0 2px 20px rgba(255, 215, 0, 0.7);
+            }
+        }
+
+        .result-popup .amount {
+            font-size: 3.5em;
+            font-weight: bold;
+            margin-bottom: 25px;
+            text-shadow: 
+                0 0 15px currentColor,
+                0 4px 20px currentColor;
+            letter-spacing: 2px;
+        }
+
+        .result-popup .amount.win {
+            color: #10b981;
+            animation: amountWinPulse 1s ease-in-out infinite;
+            background: linear-gradient(135deg, #10b981 0%, #34d399 50%, #10b981 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .result-popup .amount.lose {
+            color: #ef4444;
+            text-shadow: 
+                0 0 15px rgba(239, 68, 68, 0.8),
+                0 4px 20px rgba(239, 68, 68, 0.6);
+        }
+
+        .result-popup .amount:not(.win):not(.lose) {
+            color: #ffd700;
+            text-shadow: 
+                0 0 15px rgba(255, 215, 0, 0.8),
+                0 4px 20px rgba(255, 215, 0, 0.6);
+        }
+
+        @keyframes amountWinPulse {
+            0%, 100% { 
+                transform: scale(1);
+                filter: drop-shadow(0 0 15px rgba(16, 185, 129, 0.8));
+            }
+            50% { 
+                transform: scale(1.08);
+                filter: drop-shadow(0 0 25px rgba(16, 185, 129, 1));
+            }
+        }
+
+        .result-popup .amount.lose {
+            color: #ef4444;
+        }
+
+        .result-popup button {
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            border: none;
+            border-radius: 12px;
+            color: #1a202c;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);
+        }
+
+        .result-popup button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.6);
+        }
+
+        .result-popup button:active {
+            transform: translateY(-1px);
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 999;
+            display: none;
+        }
+
+        .overlay.show {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+
+            .wheel-container {
+                max-width: 300px;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-value {
+                font-size: 1.5em;
+            }
+
+            .spin-btn {
+                padding: 12px 40px;
+                font-size: 1.1em;
+            }
+
+            .result-popup .icon {
+                font-size: 3em;
+            }
+
+            .result-popup .title {
+                font-size: 1.5em;
+            }
+
+            .result-popup .amount {
+                font-size: 2em;
+            }
+        }
+
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .stats {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-btn">← 返回大厅</a>
+        <h1>🎡 幸运大转盘</h1>
+        <p class="subtitle">体验概率陷阱与心理操控</p>
+
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-label">💰 当前余额</div>
+                <div class="stat-value" id="balance">¥1000</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">🎯 旋转次数</div>
+                <div class="stat-value" id="spinCount">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">📊 累计盈亏</div>
+                <div class="stat-value" id="totalProfit">¥0</div>
+            </div>
+        </div>
+
+        <div class="wheel-container">
+            <div class="wheel-pointer"></div>
+            <canvas id="wheelCanvas" width="500" height="500"></canvas>
+            <div class="wheel-center">🎯</div>
+        </div>
+
+        <div class="controls">
+            <button class="spin-btn" id="spinBtn">🎡 开始转动 (¥10)</button>
+        </div>
+
+        <div class="probability-section">
+            <h4>📊 最近10抽</h4>
+            <div id="recentResults" class="recent-results">
+                <div class="result-item empty">暂无记录</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="overlay" id="overlay"></div>
+    <div class="result-popup" id="resultPopup">
+        <div class="icon" id="resultIcon">🎉</div>
+        <div class="title" id="resultTitle">恭喜中奖！</div>
+        <div class="amount win" id="resultAmount">+¥100</div>
+        <button onclick="closeResult()">继续游戏</button>
+    </div>
+
+    <script src="global-balance.js"></script>
+    <script>
+        // 奖品配置（RTP约90%）
+        const prizes = [
+            { name: '¥1000', emoji: '💎', multiplier: 100, color: '#ff6b6b', realProb: 0.002 },
+            { name: '¥500', emoji: '🏆', multiplier: 50, color: '#ff8787', realProb: 0.005 },
+            { name: '¥200', emoji: '🎖️', multiplier: 20, color: '#ffa94d', realProb: 0.015 },
+            { name: '¥100', emoji: '🥇', multiplier: 10, color: '#ffd43b', realProb: 0.03 },
+            { name: '¥50', emoji: '🥈', multiplier: 5, color: '#74c0fc', realProb: 0.08 },
+            { name: '¥30', emoji: '🥉', multiplier: 3, color: '#a9e34b', realProb: 0.12 },
+            { name: '¥20', emoji: '🎁', multiplier: 2, color: '#4ecdc4', realProb: 0.18 },
+            { name: '¥10', emoji: '🎫', multiplier: 1, color: '#b197fc', realProb: 0.25 },
+            { name: '¥5', emoji: '💸', multiplier: 0.5, color: '#868e96', realProb: 0.20 },
+            { name: '¥0', emoji: '😢', multiplier: 0, color: '#495057', realProb: 0.118 }
+        ];
+
+        // 最近抽奖记录
+        let recentResults = [];
+
+        // 游戏状态
+        let currentBet = 10; // 固定10元
+        let isSpinning = false;
+        let spinCount = 0;
+        let totalProfit = 0;
+        let currentRotation = 0;
+
+        // 初始化
+        const canvas = document.getElementById('wheelCanvas');
+        const ctx = canvas.getContext('2d');
+        const balance = window.globalBalance || new GlobalBalance();
+
+        // 绘制转盘
+        function drawWheel() {
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const radius = canvas.width / 2 - 10;
+            const sliceAngle = (2 * Math.PI) / prizes.length;
+
+            prizes.forEach((prize, index) => {
+                const startAngle = index * sliceAngle;
+                const endAngle = startAngle + sliceAngle;
+
+                // 绘制扇形
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+                ctx.closePath();
+                ctx.fillStyle = prize.color;
+                ctx.fill();
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+
+                // 绘制文字
+                ctx.save();
+                ctx.translate(centerX, centerY);
+                ctx.rotate(startAngle + sliceAngle / 2);
+                ctx.textAlign = 'center';
+                ctx.fillStyle = '#fff';
+                
+                // Emoji
+                ctx.font = 'bold 32px Arial';
+                ctx.fillText(prize.emoji, radius * 0.7, -8);
+                
+                // 金额
+                ctx.font = 'bold 22px Arial';
+                ctx.shadowColor = 'rgba(0,0,0,0.5)';
+                ctx.shadowBlur = 4;
+                ctx.fillText(prize.name, radius * 0.7, 18);
+                
+                ctx.restore();
+            });
+        }
+
+        // 根据真实概率选择格子索引
+        function selectPrizeIndex() {
+            const rand = Math.random();
+            let cumulative = 0;
+            
+            for (let i = 0; i < prizes.length; i++) {
+                cumulative += prizes[i].realProb;
+                if (rand <= cumulative) {
+                    return i; // 返回格子索引
+                }
+            }
+            
+            return prizes.length - 1; // 兜底
+        }
+
+        // 计算期望值
+        function calculateExpectedValue() {
+            let ev = 0;
+            prizes.forEach(prize => {
+                ev += currentBet * prize.multiplier * prize.realProb;
+            });
+            return ev - currentBet;
+        }
+
+        // 旋转转盘
+        function spinWheel() {
+            if (isSpinning) return;
+            
+            if (!balance.hasEnough(currentBet)) {
+                alert('余额不足！');
+                return;
+            }
+
+            isSpinning = true;
+            balance.subtractBalance(currentBet);
+            spinCount++;
+            updateStats();
+
+            const spinBtn = document.getElementById('spinBtn');
+            spinBtn.disabled = true;
+            spinBtn.textContent = '🎡 旋转中...';
+
+            // 选择格子索引（0-7）
+            const prizeIndex = selectPrizeIndex();
+            const selectedPrize = prizes[prizeIndex];
+            
+            console.log('=== 开始旋转 ===');
+            console.log('选中格子:', prizeIndex, selectedPrize.name);
+            
+            const sliceAngle = 360 / prizes.length; // 45度每格
+            
+            // 格子在转盘上的固定角度（Canvas坐标系）
+            const prizeAngleOnWheel = prizeIndex * sliceAngle + sliceAngle / 2;
+            
+            console.log('格子在转盘上的角度:', prizeAngleOnWheel);
+            
+            // 当前转盘已经转过的角度
+            const currentRotation_normalized = currentRotation % 360;
+            
+            // 关键理解：
+            // - 转盘顺时针旋转rotationAngle度
+            // - 从指针视角看，格子也顺时针移动rotationAngle度
+            // - 格子在屏幕上的视觉位置 = prizeAngleOnWheel + rotationAngle
+            
+            // 格子当前在屏幕上的视觉位置
+            const prizeCurrentScreenAngle = (prizeAngleOnWheel + currentRotation_normalized) % 360;
+            
+            console.log('格子当前在屏幕上的位置:', prizeCurrentScreenAngle);
+            
+            // 指针在屏幕上的固定位置（顶部 = 270度）
+            const pointerScreenAngle = 270;
+            
+            // 需要旋转的角度
+            // 要让格子从当前屏幕位置移动到指针位置
+            // prizeAngleOnWheel + angleToRotate = 270 (mod 360)
+            // angleToRotate = 270 - prizeCurrentScreenAngle
+            
+            let angleToRotate = (pointerScreenAngle - prizeCurrentScreenAngle + 360) % 360;
+            
+            if (angleToRotate === 0) angleToRotate = 360;
+            
+            console.log('需要旋转:', angleToRotate, '度');
+            
+            // 至少转3圈（整数圈）
+            const spins = Math.floor(3 + Math.random() * 3);
+            
+            // 添加随机偏移（在格子内随机位置，不总是中心）
+            const sliceAngleDeg = 360 / prizes.length;
+            const randomOffset = (Math.random() - 0.5) * sliceAngleDeg * 0.7; // 格子内70%范围
+            
+            const totalRotation = (360 * spins) + angleToRotate + randomOffset;
+            
+            console.log('圈数:', spins, '总旋转:', totalRotation);
+            
+            // 最终角度
+            const finalRotation = currentRotation + totalRotation;
+            const finalNormalized = finalRotation % 360;
+            
+            console.log('当前累积角度:', currentRotation);
+            console.log('本次旋转后累积:', finalRotation);
+            
+            // 验证：格子最终在屏幕上的位置
+            const finalPrizeScreenAngle = (prizeAngleOnWheel + finalNormalized) % 360;
+            
+            console.log('转盘最终角度:', finalNormalized);
+            console.log('格子最终在屏幕位置:', finalPrizeScreenAngle, '(目标270)');
+            console.log('误差:', Math.abs(finalPrizeScreenAngle - 270));
+            console.log('=================');
+
+            // 应用旋转
+            canvas.style.transition = 'transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99)';
+            canvas.style.transform = `rotate(${finalRotation}deg)`;
+            
+            currentRotation = finalRotation;
+
+            // 旋转结束
+            setTimeout(() => {
+                isSpinning = false;
+                spinBtn.disabled = false;
+                spinBtn.textContent = '🎡 开始转动 (¥10)';
+                
+                showResult(selectedPrize);
+            }, 4000);
+        }
+
+        // 显示结果
+        function showResult(prize) {
+            const winAmount = currentBet * prize.multiplier;
+            const profit = winAmount - currentBet;
+            totalProfit += profit;
+
+            if (winAmount > 0) {
+                balance.addBalance(winAmount);
+            }
+
+            // 记录结果
+            recentResults.unshift({
+                prize: prize.name,
+                emoji: prize.emoji,
+                profit: profit
+            });
+            if (recentResults.length > 10) {
+                recentResults.pop();
+            }
+
+            updateStats();
+            updateRecentResults();
+
+            const popup = document.getElementById('resultPopup');
+            const overlay = document.getElementById('overlay');
+            const icon = document.getElementById('resultIcon');
+            const title = document.getElementById('resultTitle');
+            const amount = document.getElementById('resultAmount');
+
+            icon.textContent = prize.emoji;
+            
+            if (winAmount > 0) {
+                // 有回款就是中奖
+                title.textContent = profit > 0 ? `🎉 中奖 ${prize.name}！` : profit === 0 ? '保本' : `中奖 ${prize.name}`;
+                amount.textContent = `¥${winAmount}`;
+                amount.className = profit > 0 ? 'amount win' : 'amount';
+            } else {
+                // 没回款
+                title.textContent = '很遗憾';
+                amount.textContent = `${prize.name}`;
+                amount.className = 'amount lose';
+            }
+
+            overlay.classList.add('show');
+            popup.classList.add('show');
+
+            // 播放音效
+            playSound(winAmount > 0 ? 'win' : 'lose');
+        }
+
+        // 更新最近结果
+        function updateRecentResults() {
+            const container = document.getElementById('recentResults');
+            if (!container) return;
+            
+            if (recentResults.length === 0) {
+                container.innerHTML = '<div class="result-item empty">暂无记录</div>';
+                return;
+            }
+            
+            container.innerHTML = recentResults.map(result => {
+                const winAmount = result.profit + 10; // 回款金额
+                const profitClass = result.profit > 0 ? 'profit-positive' : result.profit < 0 ? 'profit-negative' : '';
+                return `
+                    <div class="result-item ${profitClass}">
+                        <span class="result-emoji">${result.emoji}</span>
+                        <span class="result-prize">${result.prize}</span>
+                        <span class="result-profit">¥${winAmount}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 关闭结果弹窗
+        function closeResult() {
+            document.getElementById('overlay').classList.remove('show');
+            document.getElementById('resultPopup').classList.remove('show');
+        }
+
+        // 更新统计
+        function updateStats() {
+            document.getElementById('balance').textContent = `¥${balance.getBalance()}`;
+            document.getElementById('spinCount').textContent = spinCount;
+            
+            const profitEl = document.getElementById('totalProfit');
+            profitEl.textContent = `¥${totalProfit}`;
+            profitEl.className = 'stat-value ' + (totalProfit > 0 ? 'positive' : totalProfit < 0 ? 'negative' : '');
+        }
+
+        // 简单音效
+        function playSound(type) {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            if (type === 'win') {
+                oscillator.frequency.value = 800;
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.5);
+            } else {
+                oscillator.frequency.value = 200;
+                gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.3);
+            }
+        }
+
+        // 删除下注按钮的事件监听
+        // 固定10元，不需要选择
+
+        // 旋转按钮
+        document.getElementById('spinBtn').addEventListener('click', spinWheel);
+
+        // 初始化
+        drawWheel();
+        updateStats();
+
+        // 测试：初始状态下指针指向哪个格子
+        console.log('=== 初始状态测试 ===');
+        console.log('转盘角度: 0');
+        prizes.forEach((prize, index) => {
+            const angle = index * 45 + 22.5;
+            console.log(`格子${index} (${prize.name}): ${angle}度`);
+        });
+        console.log('指针应该在顶部，对应270度');
+        console.log('所以指针应该指向格子6 (270-315度区间)');
+        console.log('===================');
+
+        // 监听余额变化
+        window.addEventListener('balanceChanged', updateStats);
+    </script>
+</body>
+</html>
