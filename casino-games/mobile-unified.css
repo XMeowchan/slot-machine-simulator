@@ -238,3 +238,88 @@ body.ui-shell .stat-item::after {
   animation: none !important;
   transition: none !important;
 }
+
+.ui-source-hidden {
+  display: none !important;
+}
+
+.ui-topbar {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid rgba(255, 216, 138, 0.3);
+  border-radius: 12px;
+  background: linear-gradient(160deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
+  margin-bottom: 12px;
+}
+
+.ui-topbar-back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 0 12px;
+  text-decoration: none;
+  font-weight: 700;
+  border-radius: 9px;
+  color: var(--cg-text);
+  border: 1px solid rgba(255,255,255,.2);
+  background: rgba(255,255,255,.08);
+}
+
+.ui-topbar-titles {
+  min-width: 0;
+}
+
+.ui-topbar-title {
+  font-size: clamp(1rem, 4vw, 1.2rem);
+  font-weight: 800;
+  color: var(--cg-accent);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ui-topbar-subtitle {
+  margin-top: 2px;
+  font-size: .8rem;
+  color: var(--cg-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ui-section {
+  border-radius: var(--cg-radius) !important;
+}
+
+.ui-primary-cta {
+  box-shadow: 0 8px 18px rgba(255, 184, 111, 0.25);
+}
+
+.result-popup,
+.ov,
+.box,
+.result-message,
+.message {
+  border-radius: 12px !important;
+}
+
+@media (max-width: 640px) {
+  .ui-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 35;
+    backdrop-filter: blur(6px);
+  }
+
+  .ui-topbar-title {
+    font-size: 1rem;
+  }
+
+  .ui-topbar-subtitle {
+    font-size: .76rem;
+  }
+}
