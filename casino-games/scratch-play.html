@@ -1,0 +1,183 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>刮刮乐-刮开</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;min-height:100vh;background:linear-gradient(135deg,#13203a,#2d173f);color:#eef5ff;padding:16px 12px 140px}
+    .page{max-width:1050px;margin:0 auto}.top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+    .back{color:#fff;text-decoration:none;padding:8px 12px;border:1px solid #ffffff4d;border-radius:9px;background:#ffffff1a}
+    .meta{font-size:12px;color:#bed1ea;text-align:right;line-height:1.4}
+    .head{border:1px solid #d8c7a8;border-radius:14px;background:linear-gradient(180deg,#fff7ea,#efe2ca);padding:12px;margin-bottom:8px}
+    .head h1{text-align:center;color:#8b1e1e;font-size:clamp(24px,4vw,34px);margin-bottom:4px}
+    .head p{text-align:center;color:#5e6f84;margin-bottom:8px}
+    .rules{display:grid;gap:6px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+    .rule{border:1px solid #d8c8b0;border-radius:8px;padding:7px;background:#fffdf7;font-size:12px;color:#55697f}
+    .zones{display:grid;gap:8px}.zone{border:1px solid #d6c7ad;border-radius:12px;background:#f6f0e4;overflow:hidden}
+    .zone-h{padding:8px;border-bottom:1px solid #d8c9af;background:linear-gradient(180deg,#fff8ea,#efe3cc)}
+    .zone-h h3{font-size:16px;color:#7f1b1b;margin-bottom:3px}.zone-h p{font-size:12px;color:#5b6d82}
+    .scratch{position:relative;padding:8px;min-height:106px}.content{position:relative;z-index:1}
+    .mask{position:absolute;inset:10px;border-radius:8px;z-index:2;touch-action:none;cursor:crosshair}
+    .mask.scratching{cursor:grabbing}.grid{display:grid;gap:6px}
+    .g5{grid-template-columns:repeat(5,minmax(52px,1fr))}.g4{grid-template-columns:repeat(4,minmax(56px,1fr))}.g3{grid-template-columns:repeat(3,minmax(74px,1fr))}
+    .cell{min-height:46px;border-radius:9px;background:#fff;border:1px solid #d6dde8;color:#1d2a3f;display:flex;flex-direction:column;justify-content:center;align-items:center;font-weight:800;text-align:center;padding:2px;font-size:24px;line-height:1.05}
+    .cell .sub{font-size:14px;color:#b23030;font-weight:900}
+    .ball{border-radius:50%;aspect-ratio:1;min-height:46px;max-width:54px;justify-self:center;background:linear-gradient(160deg,#fff8df,#ffe2a6);border-color:#8f6522;font-size:30px;font-weight:900}
+    .win{border-color:#ffe090;box-shadow:0 0 12px #ffe79bb3}
+    .pre-reveal .cell.win,.pre-reveal .multi.win{border-color:#d6dde8;box-shadow:none;background:#edf1f8}
+    .popping{animation:p .7s infinite}.lose{background:#edf1f8}
+    @keyframes p{50%{transform:scale(1.05)}}
+    .label{font-size:12px;color:#ffe7b5;font-weight:700}.lucky{display:grid;gap:8px}
+    .multi{display:flex;align-items:center;justify-content:center;min-height:88px;font-size:40px;font-weight:900;background:#fff;color:#2a2f46;border:1px solid #d6dde8;border-radius:10px}
+    .fast{display:grid;grid-template-columns:repeat(4,minmax(68px,1fr));gap:8px}
+    .hud{position:fixed;top:10px;right:10px;background:#0e1828e8;border:1px solid #ffffff33;border-radius:12px;padding:8px 10px;display:flex;align-items:center;gap:10px;z-index:20}
+    .ring{position:relative;width:62px;height:62px}.ring svg{width:62px;height:62px;transform:rotate(-90deg)}
+    .rt{position:absolute;inset:0;display:flex;justify-content:center;align-items:center;font-size:13px;font-weight:800;color:#ffeec0}
+    .prefs{display:grid;gap:3px;font-size:12px}.prefs label{display:flex;gap:6px;align-items:center}
+    .bar{position:fixed;left:50%;transform:translateX(-50%);bottom:12px;width:min(820px,calc(100% - 22px));display:grid;grid-template-columns:1fr 1fr;gap:8px;background:#0e1828e8;border:1px solid #ffffff33;border-radius:12px;padding:8px;z-index:21}
+    .btn{border:none;border-radius:9px;padding:11px;font-weight:800;cursor:pointer}.pri{background:linear-gradient(145deg,#ffd678,#ffa35f);color:#2b1700}.sec{background:#ffffff24;color:#fff;border:1px solid #ffffff40}
+    .ov{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:#02060de0;z-index:30;padding:14px}.ov.show{display:flex}
+    .box{width:min(560px,100%);border:1px solid #ffffff36;border-radius:14px;background:#0d1727f5;padding:16px}
+    .ttl{text-align:center;font-size:clamp(26px,4vw,38px);font-weight:900;margin-bottom:8px}.ttl.win{color:#74f2b9}.ttl.lose{color:#ff9f9f}
+    .main{text-align:center;font-size:20px;font-weight:800;margin-bottom:10px}.rows{display:grid;gap:7px;margin-bottom:10px;font-size:14px}
+    .row{display:flex;justify-content:space-between;border-bottom:1px dashed #ffffff2b;padding-bottom:4px}
+    .tip{border:1px solid #ffe18b59;background:#ffe18b1a;color:#ffe8b1;font-size:12px;line-height:1.45;border-radius:8px;padding:8px;margin-bottom:10px}
+    .acts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    @media(max-width:860px){.hud{left:8px;right:8px;justify-content:space-between}.top{margin-top:86px}.g5{grid-template-columns:repeat(4,minmax(46px,1fr))}.g4{grid-template-columns:repeat(3,minmax(50px,1fr))}.bar,.acts{grid-template-columns:1fr}}
+  </style>
+</head>
+<body class="pre-reveal">
+  <div class="hud"><div class="ring"><svg viewBox="0 0 42 42"><circle cx="21" cy="21" r="18" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="3"></circle><circle id="ring" cx="21" cy="21" r="18" fill="none" stroke="url(#g)" stroke-width="3" stroke-linecap="round"></circle><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ffe492"></stop><stop offset="100%" stop-color="#ff9f75"></stop></linearGradient></defs></svg><div class="rt" id="pt">0%</div></div><div class="prefs"><label><input id="sound" type="checkbox">刮擦音效</label><label><input id="vib" type="checkbox">触感反馈</label></div></div>
+  <div class="page"><div class="top"><a class="back" href="scratch-card.html">← 返回选卡</a><div class="meta" id="meta"></div></div><section class="head"><h1 id="title"></h1><p id="desc"></p><div class="rules" id="rules"></div></section><div class="zones" id="zones"></div></div>
+  <div class="bar"><button class="btn pri" id="reveal">提前揭晓全部奖区</button><button class="btn sec" id="leave">先离开，稍后继续刮</button></div>
+  <div class="ov" id="ov"><div class="box"><div class="ttl" id="ttl"></div><div class="main" id="main"></div><div class="rows" id="rows"></div><div class="tip" id="tip"></div><div class="acts"><button class="btn pri" onclick="location.href='scratch-card.html'">再买一张</button><button class="btn sec" onclick="location.href='index.html'">返回大厅</button></div></div></div>
+
+  <script src="global-balance.js"></script>
+  <script src="scratch-v2-storage.js"></script>
+  <script>
+    ScratchV2.ensureInitialized();
+    class P {
+      constructor() {
+        const q = new URLSearchParams(location.search);
+        this.id = q.get("ticket");
+        this.t = ScratchV2.getTicket(this.id);
+        if (!this.id || !this.t) { alert("无效票据，请返回购买。"); location.replace("scratch-card.html"); return; }
+        this.c = ScratchV2.getCardConfig(this.t.type);
+        if (!this.c) { alert("票据配置缺失"); location.replace("scratch-card.html"); return; }
+        this.states = []; this.d = false; this.a = null; this.lx = null; this.ly = null; this.revealed = false; this.done = false; this.tick = 0;
+        this.ctxAudio = null; this.lastAudio = 0; this.prefs = ScratchV2.getPrefs();
+        this.ring = document.getElementById("ring"); this.pt = document.getElementById("pt"); this.circ = 2 * Math.PI * 18;
+        this.init();
+      }
+      init() {
+        this.renderHead(); this.renderZones(); this.initMasks(); this.bind(); this.syncPrefs(); this.upProg();
+        if (this.t.status === "settled") { this.showAll(); this.activateWins(); this.showResult(); }
+        else if (this.t.status === "revealed") { this.showAll(); this.activateWins(); this.finalize(); }
+      }
+      renderHead() {
+        document.getElementById("title").textContent = `${this.c.title}（￥${this.t.price}）`;
+        document.getElementById("desc").textContent = this.c.description;
+        document.getElementById("meta").textContent = `票号: ${this.t.id.slice(0,8)}... | 状态: ${this.t.status} | 模式: ${this.t.gameMode}`;
+        document.getElementById("rules").innerHTML = this.t.zones.map(z => `<div class='rule'><strong>${z.title}：</strong>${z.rule}</div>`).join("");
+      }
+      renderZones() {
+        const el = document.getElementById("zones");
+        el.innerHTML = this.t.zones.map(z => `<section class='zone'><div class='zone-h'><h3>${z.title}</h3><p>${z.rule}</p></div><div class='scratch'><div class='content'>${this.zoneHTML(z)}</div><canvas class='mask' data-id='${z.id}'></canvas></div></section>`).join("");
+      }
+      zoneHTML(z) {
+        const d = z.data || {};
+        if (z.viewType === "emoji_grid") { const cls = (d.columns || 5) >= 5 ? "g5" : (d.columns || 4) >= 4 ? "g4" : "g3"; return `<div class='grid ${cls}'>${(d.cells || []).map(c => `<div class='cell ${c.isWin ? "win" : "lose"}'>${c.label}</div>`).join("")}</div>`; }
+        if (z.viewType === "lucky_numbers" || z.viewType === "mega_lucky") return `<div class='lucky'><div class='label'>中奖号码</div><div class='grid g3'>${(d.winningNumbers || []).map(n => `<div class='cell ball'>${n}</div>`).join("")}</div><div class='label'>我的号码</div><div class='grid g4'>${(d.myNumbers || []).map(i => `<div class='cell ${i.isWin ? "win" : "lose"}'><div>${i.number}</div><div class='sub'>￥${i.amount}</div></div>`).join("")}</div></div>`;
+        if (z.viewType === "multiplier") return `<div class='multi ${d.isActive ? "win" : "lose"}'>${d.symbol || "x1"}</div>`;
+        if (z.viewType === "symbol_match" || z.viewType === "mega_symbol") { const cls = z.viewType === "symbol_match" ? "g5" : "g3"; return `<div class='grid ${cls}'>${(d.cells || []).map((i, idx) => { const fallback = [50,80,100,150,200,300,500,800]; const shown = i.amount && i.amount > 0 ? i.amount : fallback[idx % fallback.length]; const multi = i.multiplier && i.multiplier > 1 ? ` x${i.multiplier}` : ""; return `<div class='cell ${i.isWin ? "win" : "lose"}'><div>${i.symbol}</div><div class='sub'>￥${shown}${multi}</div></div>`; }).join("")}</div>`; }
+        if (z.viewType === "amount_trio") return `<div class='grid g3'>${(d.amounts || []).map(a => `<div class='cell ${(d.winningAmount > 0 && a === d.winningAmount) ? "win" : "lose"}'>￥${a}</div>`).join("")}</div>`;
+        if (z.viewType === "fast_spot") return `<div class='fast'>${(d.spots || []).map(s => `<div class='cell ${s.isWin ? "win" : "lose"}'>${s.label}</div>`).join("")}</div>`;
+        return `<div class='cell lose'>未知奖区</div>`;
+      }
+      initMasks() {
+        this.ring.style.strokeDasharray = `${this.circ}`; this.ring.style.strokeDashoffset = `${this.circ}`;
+        this.states = Array.from(document.querySelectorAll(".mask")).map(cv => { const id = cv.dataset.id; const z = this.t.zones.find(x => x.id === id); const p = cv.parentElement; const targets = Array.from(p.querySelectorAll(".cell,.multi")); const st = { id, z, cv, ctx: cv.getContext("2d", { willReadFrequently: true }), p, shown: false, targets, revealedTargets: new Set() }; this.resize(st); return st; });
+        this.totalTargets = this.states.reduce((n, s) => n + s.targets.length, 0);
+        if (this.t.status === "issued") this.states.forEach(s => this.drawMask(s)); else this.showAll();
+        window.addEventListener("resize", () => { this.states.forEach(s => { this.resize(s); if (!s.shown && this.t.status === "issued") this.drawMask(s); else this.clear(s); }); this.upProg(); });
+      }
+      resize(s) { const r = s.p.getBoundingClientRect(); s.cv.width = Math.max(1, Math.floor(r.width - 20)); s.cv.height = Math.max(1, Math.floor(r.height - 20)); }
+      drawMask(s) {
+        const c = s.ctx, w = s.cv.width, h = s.cv.height; c.globalCompositeOperation = "source-over"; c.fillStyle = "#b5bcc7"; c.fillRect(0, 0, w, h); c.strokeStyle = "#c8cfd8"; c.lineWidth = 2;
+        for (let x = -h; x < w; x += 10) { c.beginPath(); c.moveTo(x, 0); c.lineTo(x + h, h); c.stroke(); }
+        c.fillStyle = "#8f97a3"; for (let i = 0; i < 220; i += 1) c.fillRect(Math.random() * w, Math.random() * h, 2, 2);
+        c.fillStyle = "#3e4653"; c.font = "bold 22px Segoe UI"; c.textAlign = "center"; c.textBaseline = "middle"; c.fillText("刮开此区域", w / 2, h / 2);
+      }
+      clear(s) { if (s.shown) return; s.ctx.clearRect(0, 0, s.cv.width, s.cv.height); s.cv.style.pointerEvents = "none"; s.shown = true; s.targets.forEach((_, i) => { if (!s.revealedTargets.has(i)) s.revealedTargets.add(i); }); }
+      bind() {
+        this.states.forEach(s => {
+          const cv = s.cv;
+          cv.addEventListener("mousedown", e => { e.preventDefault(); if (this.revealed || s.shown) return; const p = this.rel(cv, e.clientX, e.clientY); this.start(s, p.x, p.y); });
+          cv.addEventListener("mousemove", e => { if (!this.d || this.a !== s) return; e.preventDefault(); const p = this.rel(cv, e.clientX, e.clientY); this.move(p.x, p.y); });
+          cv.addEventListener("touchstart", e => { if (this.revealed || s.shown) return; e.preventDefault(); const t = e.touches[0], p = this.rel(cv, t.clientX, t.clientY); this.start(s, p.x, p.y); }, { passive: false });
+          cv.addEventListener("touchmove", e => { if (!this.d || this.a !== s) return; e.preventDefault(); const t = e.touches[0], p = this.rel(cv, t.clientX, t.clientY); this.move(p.x, p.y); }, { passive: false });
+        });
+        const end = () => this.stop(); window.addEventListener("mouseup", end); window.addEventListener("touchend", end, { passive: true });
+        document.getElementById("reveal").addEventListener("click", () => this.revealAll("manual"));
+        document.getElementById("leave").addEventListener("click", () => { if (this.revealed || this.t.status !== "issued") { location.href = "scratch-card.html"; return; } if (confirm("当前票据尚未揭晓，离开后可在选卡页继续。")) location.href = "scratch-card.html"; });
+        document.getElementById("sound").addEventListener("change", e => { this.prefs.sound = e.target.checked; ScratchV2.setPrefs(this.prefs); });
+        document.getElementById("vib").addEventListener("change", e => { this.prefs.vibration = e.target.checked; ScratchV2.setPrefs(this.prefs); });
+      }
+      syncPrefs() { document.getElementById("sound").checked = !!this.prefs.sound; document.getElementById("vib").checked = !!this.prefs.vibration; }
+      rel(cv, x, y) { const r = cv.getBoundingClientRect(); return { x: x - r.left, y: y - r.top }; }
+      start(s, x, y) { this.d = true; this.a = s; this.lx = x; this.ly = y; s.cv.classList.add("scratching"); this.eraseDot(s, x, y, true); }
+      move(x, y) { if (!this.a) return; this.eraseLine(this.a, this.lx, this.ly, x, y); this.lx = x; this.ly = y; }
+      stop() { if (!this.a) return; this.a.cv.classList.remove("scratching"); this.zoneProg(this.a); this.d = false; this.a = null; this.lx = null; this.ly = null; }
+      eraseDot(s, x, y, first) { const c = s.ctx; c.globalCompositeOperation = "destination-out"; c.beginPath(); c.arc(x, y, 22, 0, Math.PI * 2); c.fill(); this.tick += 1; if (first || this.tick % 5 === 0) this.zoneProg(s); this.feedback(); }
+      eraseLine(s, x1, y1, x2, y2) { const c = s.ctx; c.globalCompositeOperation = "destination-out"; c.lineWidth = 44; c.lineCap = "round"; c.lineJoin = "round"; c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2, y2); c.stroke(); this.tick += 1; if (this.tick % 5 === 0) this.zoneProg(s); this.feedback(); }
+      feedback() {
+        const now = performance.now();
+        if (this.prefs.sound) {
+          if (!this.ctxAudio) { const Ctx = window.AudioContext || window.webkitAudioContext; if (Ctx) this.ctxAudio = new Ctx(); }
+          if (this.ctxAudio && now - this.lastAudio > 85) { this.lastAudio = now; const o = this.ctxAudio.createOscillator(), g = this.ctxAudio.createGain(); o.type = "square"; o.frequency.value = 130 + Math.random() * 90; g.gain.value = 0.0001; g.gain.exponentialRampToValueAtTime(0.035, this.ctxAudio.currentTime + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, this.ctxAudio.currentTime + 0.07); o.connect(g); g.connect(this.ctxAudio.destination); o.start(); o.stop(this.ctxAudio.currentTime + 0.08); }
+        }
+        if (this.prefs.vibration && navigator.vibrate) navigator.vibrate(6);
+      }
+      updateTargets(s) {
+        if (s.shown) return;
+        const img = s.ctx.getImageData(0, 0, s.cv.width, s.cv.height).data;
+        const pr = s.p.getBoundingClientRect();
+        s.targets.forEach((el, i) => {
+          if (s.revealedTargets.has(i)) return;
+          const r = el.getBoundingClientRect();
+          const x0 = Math.max(0, Math.floor(r.left - pr.left));
+          const y0 = Math.max(0, Math.floor(r.top - pr.top));
+          const x1 = Math.min(s.cv.width, Math.ceil(x0 + r.width));
+          const y1 = Math.min(s.cv.height, Math.ceil(y0 + r.height));
+          let tr = 0, tot = 0;
+          for (let y = y0; y < y1; y += 2) for (let x = x0; x < x1; x += 2) { tot += 1; if (img[(y * s.cv.width + x) * 4 + 3] <= 8) tr += 1; }
+          if (tot > 0 && tr / tot >= 0.6) s.revealedTargets.add(i);
+        });
+        if (s.revealedTargets.size === s.targets.length) this.clear(s);
+      }
+      zoneProg(s) { if (s.shown) return; this.updateTargets(s); this.checkAuto(); this.upProg(); }
+      upProg() { if (!this.states.length) { this.pt.textContent = "0%"; return; } const revealed = this.states.reduce((n, s) => n + s.revealedTargets.size, 0); const total = Math.max(1, this.totalTargets || 0); const m = Math.max(0, Math.min(100, revealed / total * 100)); this.pt.textContent = `${Math.floor(m)}%`; this.ring.style.strokeDashoffset = `${this.circ * (1 - m / 100)}`; }
+      checkAuto() { if (!this.revealed && this.states.every(s => s.revealedTargets.size === s.targets.length)) this.revealAll("auto"); }
+      showAll() { this.states.forEach(s => this.clear(s)); this.upProg(); }
+      activateWins() { document.body.classList.remove("pre-reveal"); document.querySelectorAll(".cell.win,.multi.win").forEach(el => el.classList.add("popping")); }
+      revealAll(trigger) { if (this.revealed) return; this.revealed = true; this.showAll(); this.activateWins(); if (this.t.status === "issued") ScratchV2.markRevealed(this.t.id); if (trigger === "manual" && this.prefs.vibration && navigator.vibrate) navigator.vibrate([20,18,30]); setTimeout(() => this.finalize(), 320); }
+      finalize() { if (this.done) return; const r = ScratchV2.settleTicket(this.t.id); if (!r.ok) { alert(r.message || "结算失败"); location.replace("scratch-card.html"); return; } this.t = r.ticket; this.showResult(); }
+      showResult() {
+        if (this.done) return;
+        this.done = true;
+        const pay = Number(this.t.payout || 0), net = pay - Number(this.t.price || 0), st = ScratchV2.getStats(), rtp = st.totalSpent > 0 ? (st.totalWon / st.totalSpent) * 100 : 0, j = ScratchV2.formatPercent(this.c.jackpotProbability || 0);
+        const ttl = document.getElementById("ttl"), main = document.getElementById("main"), rows = document.getElementById("rows"), tip = document.getElementById("tip");
+        ttl.textContent = pay > 0 ? "🎉 已中奖" : "😶 未中奖";
+        ttl.className = `ttl ${pay > 0 ? "win" : "lose"}`;
+        main.textContent = pay > 0 ? `本次中奖 ￥${pay}` : "本次没有中奖";
+        rows.innerHTML = [["票价", `￥${this.t.price}`], ["净收益", `${net >= 0 ? "+" : ""}￥${net}`], ["累计RTP", `${rtp.toFixed(2)}%`], ["头奖概率", j], ["票据状态", this.t.status]].map(([k,v]) => `<div class='row'><span>${k}</span><strong>${v}</strong></div>`).join("");
+        tip.textContent = rtp < 100 ? "教育提示：短期有波动，长期统计通常会向负期望收敛。" : "教育提示：短期盈利可能发生，持续游玩后RTP通常回落到理论值。";
+        document.getElementById("ov").classList.add("show");
+      }
+    }
+    new P();
+  </script>
+</body>
+</html>
