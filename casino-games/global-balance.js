@@ -35,5 +35,6 @@ class GlobalBalance {
     }
 }
 
-// 创建全局实例
+// 创建全局实例（兼容两种命名）
 window.globalBalance = new GlobalBalance();
+window.CasinoBalance = GlobalBalance; // 兼容旧代码

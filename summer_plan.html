@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>【惊魂夜】暑期版本脑暴提案 - 一图流</title>
+    <style>
+        :root {
+            --primary-red: #8b0000;
+            --dark-bg: #0a0a0a;
+            --card-bg: #1a1a1a;
+            --text-gray: #cccccc;
+            --accent-gold: #c5a059;
+        }
+
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background-color: var(--dark-bg);
+            color: white;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: linear-gradient(180deg, #151515 0%, #0a0a0a 100%);
+            border: 1px solid #333;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 装饰背景 */
+        .container::before {
+            content: "CONFIDENTIAL";
+            position: absolute;
+            top: 50px;
+            right: -30px;
+            font-size: 80px;
+            color: rgba(255,255,255,0.03);
+            transform: rotate(15deg);
+            pointer-events: none;
+        }
+
+        header {
+            text-align: center;
+            border-bottom: 2px solid var(--primary-red);
+            padding-bottom: 20px;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            font-size: 32px;
+            letter-spacing: 4px;
+            margin: 0;
+            color: #fff;
+        }
+
+        .subtitle {
+            color: var(--accent-gold);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            font-size: 24px;
+            color: var(--accent-gold);
+            margin: 30px 0 20px;
+            border-left: 4px solid var(--primary-red);
+            padding-left: 15px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 1px solid #222;
+            transition: transform 0.3s, border-color 0.3s;
+        }
+
+        .card:hover {
+            border-color: var(--accent-gold);
+            transform: translateY(-5px);
+        }
+
+        .tag-container {
+            margin-bottom: 15px;
+        }
+
+        .tag {
+            display: inline-block;
+            background: var(--primary-red);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+
+        .tag.purple {
+            background: #4a148c;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .info-item {
+            margin-bottom: 15px;
+        }
+
+        .label {
+            color: var(--accent-gold);
+            font-size: 12px;
+            display: block;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .content {
+            font-size: 15px;
+            line-height: 1.6;
+            color: var(--text-gray);
+        }
+
+        .quote {
+            font-style: italic;
+            border-top: 1px solid #333;
+            margin-top: 20px;
+            padding-top: 15px;
+            color: #eee;
+            text-align: center;
+            font-family: "楷体", serif;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 12px;
+            color: #444;
+            margin-top: 50px;
+            border-top: 1px solid #222;
+            padding-top: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .grid { grid-template-columns: 1fr; }
+            .container { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>暑期版本核心脑暴方案</h1>
+        <div class="subtitle">PROJECT: SUMMER THRILL NIGHT</div>
+    </header>
+
+    <div class="section-title">方向二：潜伏谍战</div>
+    <div class="card">
+        <div class="tag-container">
+            <span class="tag">民国风情</span>
+            <span class="tag">家国情怀</span>
+            <span class="tag">谍中谍</span>
+        </div>
+        <div class="grid">
+            <div class="info-item">
+                <span class="label">时代背景</span>
+                <span class="content">1930s 升龙国京城 / 租界割裂格局</span>
+            </div>
+            <div class="info-item">
+                <span class="label">核心卖点</span>
+                <span class="content">首款民国服饰 / 身份解谜玩法</span>
+            </div>
+            <div class="info-item">
+                <span class="label">追捕者角色</span>
+                <span class="content">军阀少帅</span>
+            </div>
+            <div class="info-item">
+                <span class="label">核心场景</span>
+                <span class="content">歌舞厅、报社、旧日公馆</span>
+            </div>
+        </div>
+        <div class="info-item" style="margin-top:10px;">
+            <span class="label">剧本大纲</span>
+            <span class="content">主角安冬化名"扶华"潜伏。妹妹安秋身份暴露后自我牺牲保全哥哥。最终安冬的档案被毁，他成为了组织中无名、无姓、无身份的"孤勇者"。</span>
+        </div>
+        <div class="quote">"名字、身份，我都可以抛下，我愿意成为点燃星火的最后一束柴。"</div>
+    </div>
+
+    <div class="section-title">方向三：凡人弑神</div>
+    <div class="card">
+        <div class="tag-container">
+            <span class="tag purple">史诗奇幻</span>
+            <span class="tag purple">暗黑叙事</span>
+            <span class="tag purple">双向救赎</span>
+        </div>
+        <div class="grid">
+            <div class="info-item">
+                <span class="label">时代背景</span>
+                <span class="content">雾月王朝 / 皇城内部</span>
+            </div>
+            <div class="info-item">
+                <span class="label">核心卖点</span>
+                <span class="content">雾月双子登场 / 蓝慈后续故事线</span>
+            </div>
+            <div class="info-item">
+                <span class="label">追捕者角色</span>
+                <span class="content">红马骑士</span>
+            </div>
+            <div class="info-item">
+                <span class="label">叙事诡计</span>
+                <span class="content">一体两魄 / 幻觉伴随</span>
+            </div>
+        </div>
+        <div class="info-item" style="margin-top:10px;">
+            <span class="label">剧本大纲</span>
+            <span class="content">红马骑士罗兰从断头台救下王子休，一路弑神。最终发现休早已死去，并肩作战的王子只是自己的另一个人格。最终英雄无一生还，充满宿命悲剧。</span>
+        </div>
+        <div class="quote">"也许在这最后的尽头，我能呼唤你的名字吗？休。"</div>
+    </div>
+
+    <footer>
+        © 2024 逃出惊魂夜 项目组 - 内部绝密脑暴文档
+    </footer>
+</div>
+
+</body>
+</html>

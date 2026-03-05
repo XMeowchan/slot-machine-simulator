@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>平台跳跃关卡编辑器</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="toolbar">
+            <h1>🎮 关卡编辑器</h1>
+            <div class="tools">
+                <button class="tool-btn active" data-tool="platform">平台</button>
+                <button class="tool-btn" data-tool="spike">尖刺</button>
+                <button class="tool-btn" data-tool="coin">金币</button>
+                <button class="tool-btn" data-tool="spawn">出生点</button>
+                <button class="tool-btn" data-tool="goal">终点</button>
+                <button class="tool-btn" data-tool="erase">橡皮擦</button>
+            </div>
+            <div class="actions">
+                <button id="testBtn">▶️ 测试</button>
+                <button id="editBtn" style="display:none">✏️ 编辑</button>
+                <button id="clearBtn">🗑️ 清空</button>
+                <button id="saveBtn">💾 保存</button>
+                <button id="loadBtn">📂 加载</button>
+            </div>
+        </div>
+        
+        <div class="editor-area">
+            <canvas id="canvas"></canvas>
+            <div class="info">
+                <span id="modeText">编辑模式</span>
+                <span id="posText"></span>
+            </div>
+        </div>
+    </div>
+
+    <script src="editor.js"></script>
+</body>
+</html>
