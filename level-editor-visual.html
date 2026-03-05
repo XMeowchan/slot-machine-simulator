@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>关卡编辑器 - 视觉增强版</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+        .container { 
+            max-width: 100%; 
+            margin: 0 auto;
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        h1 { 
+            margin-bottom: 20px; 
+            font-size: 32px;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            letter-spacing: -0.5px;
+        }
+        .toolbar {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+        }
+        .tool-group {
+            display: flex;
+            gap: 8px;
+            padding: 8px;
+            background: rgba(0,0,0,0.05);
+            border-radius: 12px;
+        }
+        button {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        button:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        button:active { 
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .tool { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        .tool::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s;
+        }
+        .tool:hover::before {
+            width: 200px;
+            height: 200px;
+        }
+        .tool.active { 
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            box-shadow: 0 4px 16px rgba(245, 87, 108, 0.4);
+        }
+        .action { 
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+        .action:hover {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+        #canvas {
+            display: block;
+            background: linear-gradient(180deg, #87ceeb 0%, #b0d4f1 100%);
+            border-radius: 16px;
+            cursor: crosshair;
+            box-shadow: 0 12px 48px rgba(0,0,0,0.3);
+            max-width: 100%;
+            height: auto;
+            border: 4px solid rgba(255,255,255,0.3);
+        }
+        .canvas-wrapper {
+            background: rgba(255,255,255,0.95);
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+        .info {
+            margin-top: 15px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #333;
+            font-weight: 500;
+            padding: 12px 16px;
+            background: rgba(0,0,0,0.05);
+            border-radius: 8px;
+        }
+        .spacer {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 关卡编辑器 - 视觉增强版</h1>
+        <div class="toolbar">
+            <div class="tool-group">
+                <button class="tool active" data-tool="platform">🟫 平台</button>
+                <button class="tool" data-tool="spike">🔺 尖刺</button>
+                <button class="tool" data-tool="coin">🪙 金币</button>
+                <button class="tool" data-tool="spawn">🟢 出生</button>
+                <button class="tool" data-tool="goal">⭐ 终点</button>
+                <button class="tool" data-tool="erase">🧹 擦除</button>
+            </div>
+            <span class="spacer"></span>
+            <button class="action" id="testBtn">▶️ 测试</button>
+            <button class="action" id="editBtn" style="display:none">✏️ 编辑</button>
+            <button class="action" id="clearBtn">🗑️ 清空</button>
+            <button class="action" id="saveBtn">💾 保存</button>
+            <button class="action" id="loadBtn">📂 加载</button>
+        </div>
+        <div class="canvas-wrapper">
+            <canvas id="canvas" width="1600" height="900"></canvas>
+            <div class="info">
+                <span id="mode">✏️ 编辑模式</span>
+                <span id="pos"></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const GRID = 32, W = 1600, H = 900;
+        
+        let mode = 'edit', tool = 'platform', objects = [], player = null;
+        let drawing = false, lastX = -1, lastY = -1;
+        const keys = {};
+        let time = 0, particles = [], cameraX = 0;
+        
+        // ===== 音效系统 =====
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playSound(type) {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            const now = audioCtx.currentTime;
+            
+            switch(type) {
+                case 'jump':
+                    osc.frequency.setValueAtTime(400, now);
+                    osc.frequency.exponentialRampToValueAtTime(600, now + 0.1);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                    osc.start(now);
+                    osc.stop(now + 0.1);
+                    break;
+                case 'coin':
+                    osc.frequency.setValueAtTime(800, now);
+                    osc.frequency.exponentialRampToValueAtTime(1200, now + 0.05);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+                    osc.start(now);
+                    osc.stop(now + 0.15);
+                    break;
+                case 'death':
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(300, now);
+                    osc.frequency.exponentialRampToValueAtTime(50, now + 0.3);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                    break;
+                case 'win':
+                    [0, 0.1, 0.2].forEach((t, i) => {
+                        const o = audioCtx.createOscillator();
+                        const g = audioCtx.createGain();
+                        o.connect(g);
+                        g.connect(audioCtx.destination);
+                        o.frequency.value = [523, 659, 784][i];
+                        g.gain.setValueAtTime(0.2, now + t);
+                        g.gain.exponentialRampToValueAtTime(0.01, now + t + 0.3);
+                        o.start(now + t);
+                        o.stop(now + t + 0.3);
+                    });
+                    break;
+                case 'land':
+                    osc.type = 'square';
+                    osc.frequency.value = 150;
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+                    osc.start(now);
+                    osc.stop(now + 0.05);
+                    break;
+            }
+        }
+        
+        // ===== 粒子系统 =====
+        class Particle {
+            constructor(x, y, vx, vy, color, life, size = 3) {
+                this.x = x;
+                this.y = y;
+                this.vx = vx;
+                this.vy = vy;
+                this.color = color;
+                this.life = life;
+                this.maxLife = life;
+                this.size = size;
+            }
+            
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vy += 0.3;
+                this.life--;
+            }
+            
+            draw() {
+                const alpha = this.life / this.maxLife;
+                ctx.globalAlpha = alpha;
+                ctx.fillStyle = this.color;
+                ctx.fillRect(this.x - cameraX, this.y, this.size, this.size);
+                ctx.globalAlpha = 1;
+            }
+        }
+        
+        function createParticles(x, y, count, type) {
+            for (let i = 0; i < count; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 3 + 1;
+                let color, life;
+                
+                switch(type) {
+                    case 'jump':
+                        color = '#8b7355';
+                        life = 20;
+                        particles.push(new Particle(
+                            x + Math.random() * 24,
+                            y + 32,
+                            Math.cos(angle) * speed * 0.5,
+                            -Math.abs(Math.sin(angle)) * speed - 2,
+                            color, life, 2
+                        ));
+                        break;
+                    case 'coin':
+                        color = ['#ffd700', '#ffed4e', '#fff'][Math.floor(Math.random() * 3)];
+                        life = 30;
+                        particles.push(new Particle(
+                            x + GRID/2,
+                            y + GRID/2,
+                            Math.cos(angle) * speed * 2,
+                            Math.sin(angle) * speed * 2,
+                            color, life, 4
+                        ));
+                        break;
+                    case 'death':
+                        color = ['#ff0000', '#ff6600', '#ffaa00'][Math.floor(Math.random() * 3)];
+                        life = 40;
+                        particles.push(new Particle(
+                            x + 12,
+                            y + 16,
+                            Math.cos(angle) * speed * 3,
+                            Math.sin(angle) * speed * 3,
+                            color, life, 5
+                        ));
+                        break;
+                    case 'land':
+                        color = '#8b7355';
+                        life = 15;
+                        particles.push(new Particle(
+                            x + Math.random() * 24,
+                            y + 32,
+                            (Math.random() - 0.5) * 4,
+                            -Math.random() * 2,
+                            color, life, 2
+                        ));
+                        break;
+                }
+            }
+        }
+        
+        // ===== 背景视差系统 =====
+        class Cloud {
+            constructor() {
+                this.x = Math.random() * W * 2;
+                this.y = Math.random() * H * 0.4;
+                this.speed = Math.random() * 0.3 + 0.1;
+                this.size = Math.random() * 40 + 30;
+                this.opacity = Math.random() * 0.3 + 0.2;
+            }
+            
+            update() {
+                this.x -= this.speed;
+                if (this.x < -this.size * 2) {
+                    this.x = W + this.size;
+                }
+            }
+            
+            draw() {
+                ctx.globalAlpha = this.opacity;
+                ctx.fillStyle = '#fff';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.arc(this.x + this.size * 0.6, this.y, this.size * 0.8, 0, Math.PI * 2);
+                ctx.arc(this.x + this.size * 1.2, this.y, this.size * 0.7, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1;
+            }
+        }
+        
+        class Mountain {
+            constructor(layer) {
+                this.layer = layer;
+                this.speed = layer * 0.05;
+                this.x = 0;
+                this.color = layer === 1 ? 'rgba(100,100,150,0.3)' : 'rgba(80,80,120,0.2)';
+            }
+            
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.moveTo(-this.x * this.speed, H);
+                for (let i = 0; i < W + 200; i += 100) {
+                    const x = i - (this.x * this.speed) % 100;
+                    const h = Math.sin(i * 0.01 + this.layer) * 100 + 200 + this.layer * 50;
+                    ctx.lineTo(x, H - h);
+                }
+                ctx.lineTo(W, H);
+                ctx.fill();
+            }
+        }
+        
+        const clouds = Array.from({length: 8}, () => new Cloud());
+        const mountains = [new Mountain(1), new Mountain(2)];
+        
+        // ===== 工具切换 =====
+        document.querySelectorAll('.tool').forEach(btn => {
+            btn.onclick = () => {
+                document.querySelectorAll('.tool').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                tool = btn.dataset.tool;
+            };
+        });
+        
+        // ===== 画布交互 =====
+        canvas.onmousedown = e => { drawing = true; draw(e); };
+        canvas.onmousemove = e => {
+            const r = canvas.getBoundingClientRect();
+            const gx = Math.floor((e.clientX - r.left) / r.width * W / GRID);
+            const gy = Math.floor((e.clientY - r.top) / r.height * H / GRID);
+            document.getElementById('pos').textContent = `${gx}, ${gy}`;
+            if (drawing && mode === 'edit') draw(e);
+        };
+        canvas.onmouseup = canvas.onmouseleave = () => { drawing = false; lastX = lastY = -1; };
+        
+        function draw(e) {
+            if (mode !== 'edit') return;
+            const r = canvas.getBoundingClientRect();
+            const x = Math.floor((e.clientX - r.left) / r.width * W / GRID) * GRID;
+            const y = Math.floor((e.clientY - r.top) / r.height * H / GRID) * GRID;
+            if (x === lastX && y === lastY) return;
+            lastX = x; lastY = y;
+            
+            if (tool === 'erase') {
+                objects = objects.filter(o => !(o.x === x && o.y === y));
+            } else {
+                objects = objects.filter(o => !(o.x === x && o.y === y));
+                if (tool === 'spawn') objects = objects.filter(o => o.type !== 'spawn');
+                if (tool === 'goal') objects = objects.filter(o => o.type !== 'goal');
+                objects.push({ type: tool, x, y });
+            }
+            render();
+        }
+        
+        // ===== 渲染系统 =====
+        function render() {
+            // 背景渐变
+            const gradient = ctx.createLinearGradient(0, 0, 0, H);
+            gradient.addColorStop(0, '#87ceeb');
+            gradient.addColorStop(0.7, '#b0d4f1');
+            gradient.addColorStop(1, '#e0f0ff');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, W, H);
+            
+            // 视差背景
+            if (mode === 'test') {
+                mountains.forEach(m => {
+                    m.x = cameraX;
+                    m.draw();
+                });
+                clouds.forEach(c => {
+                    c.update();
+                    c.draw();
+                });
+            }
+            
+            // 网格（编辑模式）
+            if (mode === 'edit') {
+                ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+                ctx.lineWidth = 1;
+                for (let i = 0; i <= W; i += GRID) {
+                    ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, H); ctx.stroke();
+                }
+                for (let i = 0; i <= H; i += GRID) {
+                    ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(W, i); ctx.stroke();
+                }
+            }
+            
+            const camOffset = mode === 'test' ? -cameraX : 0;
+            
+            // 渲染对象
+            objects.forEach(o => {
+                const x = o.x + camOffset;
+                
+                switch(o.type) {
+                    case 'platform':
+                        // 呼吸效果
+                        const breathe = mode === 'test' ? Math.sin(time * 0.05 + o.x * 0.01) * 2 : 0;
+                        ctx.fillStyle = '#8b4513';
+                        ctx.fillRect(x, o.y + breathe, GRID, GRID);
+                        ctx.strokeStyle = '#654321';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(x, o.y + breathe, GRID, GRID);
+                        // 高光
+                        ctx.fillStyle = 'rgba(255,255,255,0.2)';
+                        ctx.fillRect(x + 2, o.y + breathe + 2, GRID - 4, 4);
+                        break;
+                        
+                    case 'spike':
+                        ctx.fillStyle = '#ff0000';
+                        ctx.beginPath();
+                        ctx.moveTo(x, o.y + GRID);
+                        ctx.lineTo(x + GRID/2, o.y);
+                        ctx.lineTo(x + GRID, o.y + GRID);
+                        ctx.fill();
+                        ctx.fillStyle = '#aa0000';
+                        ctx.beginPath();
+                        ctx.moveTo(x + GRID/2, o.y);
+                        ctx.lineTo(x + GRID/2 + 2, o.y + GRID/2);
+                        ctx.lineTo(x + GRID, o.y + GRID);
+                        ctx.lineTo(x, o.y + GRID);
+                        ctx.fill();
+                        break;
+                        
+                    case 'coin':
+                        // 旋转动画
+                        const rotation = mode === 'test' ? (time * 0.1) % (Math.PI * 2) : 0;
+                        const scale = Math.abs(Math.cos(rotation));
+                        ctx.save();
+                        ctx.translate(x + GRID/2, o.y + GRID/2);
+                        
+                        // 外圈
+                        ctx.fillStyle = '#ffd700';
+                        ctx.beginPath();
+                        ctx.ellipse(0, 0, GRID/3 * scale, GRID/3, 0, 0, Math.PI * 2);
+                        ctx.fill();
+                        
+                        // 内圈
+                        ctx.fillStyle = '#ffed4e';
+                        ctx.beginPath();
+                        ctx.ellipse(0, 0, GRID/4 * scale, GRID/4, 0, 0, Math.PI * 2);
+                        ctx.fill();
+                        
+                        // 光晕
+                        if (mode === 'test') {
+                            const pulse = Math.sin(time * 0.15) * 0.3 + 0.7;
+                            ctx.globalAlpha = 0.3 * pulse;
+                            ctx.fillStyle = '#ffff00';
+                            ctx.beginPath();
+                            ctx.arc(0, 0, GRID/2, 0, Math.PI * 2);
+                            ctx.fill();
+                            ctx.globalAlpha = 1;
+                        }
+                        
+                        ctx.restore();
+                        break;
+                        
+                    case 'spawn':
+                        ctx.fillStyle = '#00ff00';
+                        ctx.fillRect(x + 4, o.y, GRID - 8, GRID);
+                        // 脉冲效果
+                        if (mode === 'test') {
+                            const pulse = Math.sin(time * 0.1) * 0.3 + 0.5;
+                            ctx.globalAlpha = pulse;
+                            ctx.strokeStyle = '#00ff00';
+                            ctx.lineWidth = 3;
+                            ctx.strokeRect(x, o.y - 4, GRID, GRID + 8);
+                            ctx.globalAlpha = 1;
+                        }
+                        break;
+                        
+                    case 'goal':
+                        // 旋转星星
+                        ctx.save();
+                        ctx.translate(x + GRID/2, o.y + GRID/2);
+                        if (mode === 'test') ctx.rotate(time * 0.05);
+                        
+                        ctx.fillStyle = '#ffff00';
+                        ctx.beginPath();
+                        for (let i = 0; i < 5; i++) {
+                            const angle = (i * 4 * Math.PI / 5) - Math.PI / 2;
+                            const r = i % 2 === 0 ? GRID/2 : GRID/4;
+                            const px = Math.cos(angle) * r;
+                            const py = Math.sin(angle) * r;
+                            if (i === 0) ctx.moveTo(px, py);
+                            else ctx.lineTo(px, py);
+                        }
+                        ctx.closePath();
+                        ctx.fill();
+                        
+                        // 光晕
+                        if (mode === 'test') {
+                            const pulse = Math.sin(time * 0.2) * 0.4 + 0.6;
+                            ctx.globalAlpha = 0.4 * pulse;
+                            ctx.fillStyle = '#ffff00';
+                            ctx.beginPath();
+                            ctx.arc(0, 0, GRID/2 + 10, 0, Math.PI * 2);
+                            ctx.fill();
+                            ctx.globalAlpha = 1;
+                        }
+                        
+                        ctx.restore();
+                        break;
+                }
+            });
+            
+            // 粒子
+            particles = particles.filter(p => p.life > 0);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            
+            // 玩家
+            if (mode === 'test' && player) {
+                const px = player.x - cameraX;
+                
+                // 玩家状态动画
+                let offsetY = 0, squash = 1, stretch = 1;
+                
+                if (!player.ground && player.vy < 0) {
+                    // 跳跃 - 拉伸
+                    stretch = 1.1;
+                    squash = 0.9;
+                } else if (!player.ground && player.vy > 5) {
+                    // 下落 - 压缩
+                    stretch = 0.9;
+                    squash = 1.1;
+                } else if (player.ground && player.vx !== 0) {
+                    // 跑步 - 上下弹跳
+                    offsetY = Math.sin(time * 0.3) * 2;
+                }
+                
+                ctx.save();
+                ctx.translate(px + 12, player.y + 16);
+                ctx.scale(squash, stretch);
+                ctx.translate(-12, -16);
+                
+                // 身体
+                ctx.fillStyle = player.ground ? '#0066ff' : '#00aaff';
+                ctx.fillRect(0, offsetY, 24, 32);
+                
+                // 眼睛
+                ctx.fillStyle = '#fff';
+                const eyeY = player.vy < 0 ? 6 : 8;
+                ctx.fillRect(6, offsetY + eyeY, 4, 4);
+                ctx.fillRect(14, offsetY + eyeY, 4, 4);
+                
+                // 嘴巴（表情）
+                if (player.vy < -5) {
+                    // 跳跃 - 开心
+                    ctx.fillStyle = '#fff';
+                    ctx.fillRect(8, offsetY + 20, 8, 3);
+                }
+                
+                ctx.restore();
+                
+                // 移动方向指示
+                if (player.vx !== 0) {
+                    ctx.fillStyle = 'rgba(255,255,255,0.3)';
+                    const dir = player.vx > 0 ? 1 : -1;
+                    ctx.beginPath();
+                    ctx.moveTo(px + 12 + dir * 15, player.y + 16);
+                    ctx.lineTo(px + 12 + dir * 10, player.y + 12);
+                    ctx.lineTo(px + 12 + dir * 10, player.y + 20);
+                    ctx.fill();
+                }
+            }
+        }
+        
+        // ===== 测试模式 =====
+        document.getElementById('testBtn').onclick = () => {
+            const spawn = objects.find(o => o.type === 'spawn');
+            if (!spawn) return alert('请先放置出生点');
+            mode = 'test';
+            player = { 
+                x: spawn.x + 4, 
+                y: spawn.y, 
+                vx: 0, 
+                vy: 0, 
+                ground: false,
+                lastGround: false
+            };
+            cameraX = 0;
+            particles = [];
+            document.getElementById('testBtn').style.display = 'none';
+            document.getElementById('editBtn').style.display = 'inline-block';
+            document.getElementById('mode').textContent = '▶️ 测试模式 - WASD/方向键移动，空格跳跃';
+            canvas.style.cursor = 'default';
+            loop();
+        };
+        
+        document.getElementById('editBtn').onclick = () => {
+            mode = 'edit';
+            player = null;
+            particles = [];
+            cameraX = 0;
+            document.getElementById('testBtn').style.display = 'inline-block';
+            document.getElementById('editBtn').style.display = 'none';
+            document.getElementById('mode').textContent = '✏️ 编辑模式';
+            canvas.style.cursor = 'crosshair';
+            render();
+        };
+        
+        // ===== 键盘 =====
+        window.onkeydown = e => {
+            keys[e.key] = true;
+            if (mode === 'test' && [' ', 'ArrowUp', 'w', 'W'].includes(e.key)) {
+                e.preventDefault();
+                if (player.ground) {
+                    player.vy = -12;
+                    playSound('jump');
+                    createParticles(player.x, player.y, 8, 'jump');
+                }
+            }
+        };
+        window.onkeyup = e => keys[e.key] = false;
+        
+        // ===== 碰撞检测 =====
+        function hit(a, b) {
+            return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+        }
+        
+        // ===== 游戏循环 =====
+        function loop() {
+            if (mode !== 'test' || !player) return;
+            
+            time++;
+            
+            // 移动
+            player.vx = (keys.ArrowLeft || keys.a || keys.A) ? -5 : (keys.ArrowRight || keys.d || keys.D) ? 5 : 0;
+            player.vy = Math.min(player.vy + 0.6, 15);
+            
+            player.x += player.vx;
+            if (player.x < 0) player.x = 0;
+            if (player.x > W - 24) player.x = W - 24;
+            
+            player.y += player.vy;
+            player.lastGround = player.ground;
+            player.ground = false;
+            
+            // 碰撞检测
+            objects.forEach(o => {
+                if (o.type === 'platform') {
+                    const p = { x: o.x, y: o.y, w: GRID, h: GRID };
+                    const pl = { x: player.x, y: player.y, w: 24, h: 32 };
+                    if (hit(pl, p)) {
+                        if (player.vy > 0 && player.y + 32 - player.vy <= p.y) {
+                            player.y = p.y - 32;
+                            player.vy = 0;
+                            player.ground = true;
+                            
+                            // 着陆效果
+                            if (!player.lastGround) {
+                                playSound('land');
+                                createParticles(player.x, player.y, 6, 'land');
+                            }
+                        } else if (player.vy < 0 && player.y - player.vy >= p.y + p.h) {
+                            player.y = p.y + p.h;
+                            player.vy = 0;
+                        }
+                    }
+                }
+                
+                if (o.type === 'spike' && hit({ x: player.x, y: player.y, w: 24, h: 32 }, { x: o.x, y: o.y, w: GRID, h: GRID })) {
+                    playSound('death');
+                    createParticles(player.x, player.y, 20, 'death');
+                    const spawn = objects.find(s => s.type === 'spawn');
+                    if (spawn) {
+                        setTimeout(() => {
+                            player.x = spawn.x + 4;
+                            player.y = spawn.y;
+                            player.vx = player.vy = 0;
+                            cameraX = 0;
+                        }, 100);
+                    }
+                }
+                
+                if (o.type === 'coin' && hit({ x: player.x, y: player.y, w: 24, h: 32 }, { x: o.x, y: o.y, w: GRID, h: GRID })) {
+                    playSound('coin');
+                    createParticles(o.x, o.y, 15, 'coin');
+                    objects = objects.filter(obj => obj !== o);
+                }
+                
+                if (o.type === 'goal' && hit({ x: player.x, y: player.y, w: 24, h: 32 }, { x: o.x, y: o.y, w: GRID, h: GRID })) {
+                    playSound('win');
+                    createParticles(o.x, o.y, 30, 'coin');
+                    alert('🎉 完成！');
+                    document.getElementById('editBtn').click();
+                }
+            });
+            
+            // 掉落重置
+            if (player.y > H) {
+                playSound('death');
+                const spawn = objects.find(s => s.type === 'spawn');
+                if (spawn) {
+                    player.x = spawn.x + 4;
+                    player.y = spawn.y;
+                    player.vx = player.vy = 0;
+                    cameraX = 0;
+                }
+            }
+            
+            // 相机跟随
+            const targetCameraX = Math.max(0, Math.min(player.x - W/2 + 12, W - W));
+            cameraX += (targetCameraX - cameraX) * 0.1;
+            
+            render();
+            requestAnimationFrame(loop);
+        }
+        
+        // ===== 清空/保存/加载 =====
+        document.getElementById('clearBtn').onclick = () => {
+            if (confirm('确定清空？')) { objects = []; render(); }
+        };
+        
+        document.getElementById('saveBtn').onclick = () => {
+            const data = JSON.stringify(objects);
+            localStorage.setItem('level', data);
+            const a = document.createElement('a');
+            a.href = 'data:text/json,' + encodeURIComponent(data);
+            a.download = 'level.json';
+            a.click();
+            alert('已保存！');
+        };
+        
+        document.getElementById('loadBtn').onclick = () => {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = e => {
+                const reader = new FileReader();
+                reader.onload = ev => {
+                    try {
+                        objects = JSON.parse(ev.target.result);
+                        render();
+                        alert('加载成功！');
+                    } catch { alert('文件错误！'); }
+                };
+                reader.readAsText(e.target.files[0]);
+            };
+            input.click();
+        };
+        
+        // ===== 初始化 =====
+        const saved = localStorage.getItem('level');
+        if (saved) try { objects = JSON.parse(saved); } catch {}
+        render();
+    </script>
+</body>
+</html>

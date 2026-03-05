@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>关卡编辑器</title>
+    <title>关卡编辑器 - 增强版</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -125,6 +125,11 @@
             background: rgba(0,0,0,0.05);
             border-radius: 8px;
         }
+        .timer {
+            font-size: 24px;
+            font-weight: 700;
+            color: #667eea;
+        }
         .spacer {
             flex: 1;
         }
@@ -132,10 +137,13 @@
 </head>
 <body>
     <div class="container">
-        <h1>🎮 关卡编辑器</h1>
+        <h1>🎮 关卡编辑器 - 增强版</h1>
         <div class="toolbar">
             <div class="tool-group">
                 <button class="tool active" data-tool="platform">🟫 平台</button>
+                <button class="tool" data-tool="moving">🔄 移动平台</button>
+                <button class="tool" data-tool="bounce">🔵 弹跳板</button>
+                <button class="tool" data-tool="enemy">👾 敌人</button>
                 <button class="tool" data-tool="spike">🔺 尖刺</button>
                 <button class="tool" data-tool="coin">🪙 金币</button>
                 <button class="tool" data-tool="spawn">🟢 出生</button>
@@ -153,6 +161,7 @@
             <canvas id="canvas" width="1600" height="900"></canvas>
             <div class="info">
                 <span id="mode">✏️ 编辑模式</span>
+                <span id="timer" class="timer"></span>
                 <span id="pos"></span>
             </div>
         </div>
@@ -165,6 +174,7 @@
         
         let mode = 'edit', tool = 'platform', objects = [], player = null;
         let drawing = false, lastX = -1, lastY = -1;
+        let startTime = 0, elapsedTime = 0;
         const keys = {};
         
         // 工具切换
@@ -201,7 +211,22 @@
                 objects = objects.filter(o => !(o.x === x && o.y === y));
                 if (tool === 'spawn') objects = objects.filter(o => o.type !== 'spawn');
                 if (tool === 'goal') objects = objects.filter(o => o.type !== 'goal');
-                objects.push({ type: tool, x, y });
+                
+                const obj = { type: tool, x, y };
+                if (tool === 'moving') {
+                    obj.startX = x;
+                    obj.range = GRID * 4;
+                    obj.speed = 2;
+                    obj.offset = 0;
+                }
+                if (tool === 'enemy') {
+                    obj.startX = x;
+                    obj.range = GRID * 3;
+                    obj.speed = 1.5;
+                    obj.offset = 0;
+                    obj.dir = 1;
+                }
+                objects.push(obj);
             }
             render();
         }
@@ -231,6 +256,55 @@
                         ctx.lineWidth = 2;
                         ctx.strokeRect(o.x, o.y, GRID, GRID);
                         break;
+                    
+                    case 'moving':
+                        if (mode === 'test') {
+                            o.offset += o.speed;
+                            if (o.offset >= o.range || o.offset <= 0) o.speed *= -1;
+                            o.x = o.startX + o.offset;
+                        }
+                        ctx.fillStyle = '#ff8c00';
+                        ctx.fillRect(o.x, o.y, GRID, GRID);
+                        ctx.strokeStyle = '#ff6600';
+                        ctx.lineWidth = 3;
+                        ctx.strokeRect(o.x, o.y, GRID, GRID);
+                        if (mode === 'edit') {
+                            ctx.strokeStyle = '#ffaa00';
+                            ctx.setLineDash([5, 5]);
+                            ctx.strokeRect(o.startX, o.y, o.range, GRID);
+                            ctx.setLineDash([]);
+                        }
+                        break;
+                    
+                    case 'bounce':
+                        ctx.fillStyle = '#00bfff';
+                        ctx.fillRect(o.x, o.y, GRID, GRID);
+                        ctx.fillStyle = '#fff';
+                        ctx.font = 'bold 20px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('↑', o.x + GRID/2, o.y + GRID/2 + 7);
+                        break;
+                    
+                    case 'enemy':
+                        if (mode === 'test') {
+                            o.offset += o.speed * o.dir;
+                            if (o.offset >= o.range) { o.offset = o.range; o.dir = -1; }
+                            if (o.offset <= 0) { o.offset = 0; o.dir = 1; }
+                            o.x = o.startX + o.offset;
+                        }
+                        ctx.fillStyle = '#ff1493';
+                        ctx.fillRect(o.x + 4, o.y, GRID - 8, GRID);
+                        ctx.fillStyle = '#fff';
+                        ctx.fillRect(o.x + 8, o.y + 8, 6, 6);
+                        ctx.fillRect(o.x + GRID - 14, o.y + 8, 6, 6);
+                        if (mode === 'edit') {
+                            ctx.strokeStyle = '#ff69b4';
+                            ctx.setLineDash([5, 5]);
+                            ctx.strokeRect(o.startX, o.y, o.range, GRID);
+                            ctx.setLineDash([]);
+                        }
+                        break;
+                    
                     case 'spike':
                         ctx.fillStyle = '#ff0000';
                         ctx.beginPath();
@@ -239,16 +313,19 @@
                         ctx.lineTo(o.x + GRID, o.y + GRID);
                         ctx.fill();
                         break;
+                    
                     case 'coin':
                         ctx.fillStyle = '#ffd700';
                         ctx.beginPath();
                         ctx.arc(o.x + GRID/2, o.y + GRID/2, GRID/3, 0, Math.PI * 2);
                         ctx.fill();
                         break;
+                    
                     case 'spawn':
                         ctx.fillStyle = '#00ff00';
                         ctx.fillRect(o.x + 4, o.y, GRID - 8, GRID);
                         break;
+                    
                     case 'goal':
                         ctx.fillStyle = '#ffff00';
                         ctx.fillRect(o.x, o.y, GRID, GRID);
@@ -275,6 +352,19 @@
             if (!spawn) return alert('请先放置出生点');
             mode = 'test';
             player = { x: spawn.x + 4, y: spawn.y, vx: 0, vy: 0, ground: false };
+            startTime = Date.now();
+            elapsedTime = 0;
+            
+            // 重置移动平台和敌人
+            objects.forEach(o => {
+                if (o.type === 'moving' || o.type === 'enemy') {
+                    o.offset = 0;
+                    o.x = o.startX;
+                    if (o.type === 'moving') o.speed = Math.abs(o.speed);
+                    if (o.type === 'enemy') o.dir = 1;
+                }
+            });
+            
             document.getElementById('testBtn').style.display = 'none';
             document.getElementById('editBtn').style.display = 'inline-block';
             document.getElementById('mode').textContent = '▶️ 测试模式 - WASD/方向键移动，空格跳跃';
@@ -288,7 +378,16 @@
             document.getElementById('testBtn').style.display = 'inline-block';
             document.getElementById('editBtn').style.display = 'none';
             document.getElementById('mode').textContent = '✏️ 编辑模式';
+            document.getElementById('timer').textContent = '';
             canvas.style.cursor = 'crosshair';
+            
+            // 重置所有动态对象位置
+            objects.forEach(o => {
+                if (o.type === 'moving' || o.type === 'enemy') {
+                    o.x = o.startX;
+                    o.offset = 0;
+                }
+            });
             render();
         };
         
@@ -302,15 +401,32 @@
         };
         window.onkeyup = e => keys[e.key] = false;
         
-        // 碰撞
+        // 碰撞检测
         function hit(a, b) {
             return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+        }
+        
+        // 重生
+        function respawn() {
+            const spawn = objects.find(s => s.type === 'spawn');
+            if (spawn) {
+                player.x = spawn.x + 4;
+                player.y = spawn.y;
+                player.vx = player.vy = 0;
+            }
         }
         
         // 游戏循环
         function loop() {
             if (mode !== 'test' || !player) return;
             
+            // 更新计时器
+            elapsedTime = Date.now() - startTime;
+            const sec = Math.floor(elapsedTime / 1000);
+            const ms = Math.floor((elapsedTime % 1000) / 10);
+            document.getElementById('timer').textContent = `⏱️ ${sec}.${ms.toString().padStart(2, '0')}s`;
+            
+            // 玩家移动
             player.vx = (keys.ArrowLeft || keys.a || keys.A) ? -5 : (keys.ArrowRight || keys.d || keys.D) ? 5 : 0;
             player.vy = Math.min(player.vy + 0.6, 15);
             
@@ -321,15 +437,22 @@
             player.y += player.vy;
             player.ground = false;
             
+            // 碰撞检测
             objects.forEach(o => {
-                if (o.type === 'platform') {
-                    const p = { x: o.x, y: o.y, w: GRID, h: GRID };
-                    const pl = { x: player.x, y: player.y, w: 24, h: 32 };
+                const p = { x: o.x, y: o.y, w: GRID, h: GRID };
+                const pl = { x: player.x, y: player.y, w: 24, h: 32 };
+                
+                // 平台和移动平台
+                if (o.type === 'platform' || o.type === 'moving') {
                     if (hit(pl, p)) {
                         if (player.vy > 0 && player.y + 32 - player.vy <= p.y) {
                             player.y = p.y - 32;
                             player.vy = 0;
                             player.ground = true;
+                            // 移动平台带动玩家
+                            if (o.type === 'moving') {
+                                player.x += o.speed;
+                            }
                         } else if (player.vy < 0 && player.y - player.vy >= p.y + p.h) {
                             player.y = p.y + p.h;
                             player.vy = 0;
@@ -337,32 +460,40 @@
                     }
                 }
                 
-                if (o.type === 'spike' && hit({ x: player.x, y: player.y, w: 24, h: 32 }, { x: o.x, y: o.y, w: GRID, h: GRID })) {
-                    const spawn = objects.find(s => s.type === 'spawn');
-                    if (spawn) {
-                        player.x = spawn.x + 4;
-                        player.y = spawn.y;
-                        player.vx = player.vy = 0;
+                // 弹跳板
+                if (o.type === 'bounce' && hit(pl, p)) {
+                    if (player.vy > 0) {
+                        player.vy = -18;
+                        player.ground = false;
                     }
                 }
                 
-                if (o.type === 'coin' && hit({ x: player.x, y: player.y, w: 24, h: 32 }, { x: o.x, y: o.y, w: GRID, h: GRID })) {
+                // 尖刺 - 重生
+                if (o.type === 'spike' && hit(pl, p)) {
+                    respawn();
+                }
+                
+                // 敌人 - 重生
+                if (o.type === 'enemy' && hit(pl, p)) {
+                    respawn();
+                }
+                
+                // 金币 - 收集
+                if (o.type === 'coin' && hit(pl, p)) {
                     objects = objects.filter(obj => obj !== o);
                 }
                 
-                if (o.type === 'goal' && hit({ x: player.x, y: player.y, w: 24, h: 32 }, { x: o.x, y: o.y, w: GRID, h: GRID })) {
-                    alert('🎉 完成！');
+                // 终点 - 完成
+                if (o.type === 'goal' && hit(pl, p)) {
+                    const finalTime = (elapsedTime / 1000).toFixed(2);
+                    alert(`🎉 完成！用时：${finalTime}秒`);
                     document.getElementById('editBtn').click();
                 }
             });
             
+            // 掉落重生
             if (player.y > H) {
-                const spawn = objects.find(s => s.type === 'spawn');
-                if (spawn) {
-                    player.x = spawn.x + 4;
-                    player.y = spawn.y;
-                    player.vx = player.vy = 0;
-                }
+                respawn();
             }
             
             render();
@@ -376,10 +507,10 @@
         
         document.getElementById('saveBtn').onclick = () => {
             const data = JSON.stringify(objects);
-            localStorage.setItem('level', data);
+            localStorage.setItem('level-gameplay', data);
             const a = document.createElement('a');
             a.href = 'data:text/json,' + encodeURIComponent(data);
-            a.download = 'level.json';
+            a.download = 'level-gameplay.json';
             a.click();
             alert('已保存！');
         };
@@ -403,7 +534,7 @@
         };
         
         // 初始化
-        const saved = localStorage.getItem('level');
+        const saved = localStorage.getItem('level-gameplay');
         if (saved) try { objects = JSON.parse(saved); } catch {}
         render();
     </script>
