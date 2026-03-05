@@ -884,19 +884,21 @@
             for (let i = 0; i < simulations; i++) {
                 // 复制牌堆
                 const tempDeck = [...deck];
-                let dealerSimValue = calculateHandValue(dealerHand);
+                
+                // 从牌堆随机抽一张作为庄家暗牌
+                const hiddenCardIndex = Math.floor(Math.random() * tempDeck.length);
+                const hiddenCard = tempDeck.splice(hiddenCardIndex, 1)[0];
+                
+                // 庄家起始点数 = 暗牌 + 明牌
+                let dealerSimHand = [hiddenCard, ...dealerVisibleCards];
+                let dealerSimValue = calculateHandValue(dealerSimHand);
                 
                 // 庄家按规则抽牌（17点以上停牌）
                 while (dealerSimValue < 17 && tempDeck.length > 0) {
                     const randomIndex = Math.floor(Math.random() * tempDeck.length);
                     const card = tempDeck.splice(randomIndex, 1)[0];
-                    dealerSimValue += getCardValue(card);
-                    
-                    // 处理A
-                    if (dealerSimValue > 21) {
-                        // 简化处理：如果爆牌就停止
-                        break;
-                    }
+                    dealerSimHand.push(card);
+                    dealerSimValue = calculateHandValue(dealerSimHand);
                 }
 
                 // 判断胜负
