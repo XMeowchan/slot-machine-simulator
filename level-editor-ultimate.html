@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>关卡编辑器 - 终极完整版</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+        .container { 
+            max-width: 100%; 
+            margin: 0 auto;
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        h1 { 
+            margin-bottom: 20px; 
+            font-size: 32px;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            letter-spacing: -0.5px;
+        }
+        .toolbar {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+        }
+        .tool-group {
+            display: flex;
+            gap: 8px;
+            padding: 8px;
+            background: rgba(0,0,0,0.05);
+            border-radius: 12px;
+        }
+        button {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        button:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        button:active { 
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .tool { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        .tool::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s;
+        }
+        .tool:hover::before {
+            width: 200px;
+            height: 200px;
+        }
+        .tool.active { 
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            box-shadow: 0 4px 16px rgba(245, 87, 108, 0.4);
+        }
+        .action { 
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+        .action:hover {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+        #canvas {
+            display: block;
+            background: linear-gradient(180deg, #87ceeb 0%, #b0d4f1 100%);
+            border-radius: 16px;
+            cursor: crosshair;
+            box-shadow: 0 12px 48px rgba(0,0,0,0.3);
+            max-width: 100%;
+            height: auto;
+            border: 4px solid rgba(255,255,255,0.3);
+        }
+        .canvas-wrapper {
+            background: rgba(255,255,255,0.95);
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+        .info {
+            margin-top: 15px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #333;
+            font-weight: 500;
+            padding: 12px 16px;
+            background: rgba(0,0,0,0.05);
+            border-radius: 8px;
+        }
+        .timer {
+            font-size: 24px;
+            font-weight: 700;
+            color: #667eea;
+        }
+        .spacer {
+            flex: 1;
+        }
+        .props-panel {
+            background: rgba(0,0,0,0.05);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .props-panel label {
+            color: #333;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .props-panel input {
+            padding: 4px 8px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        #helpPanel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            display: none;
+            z-index: 1000;
+            color: #333;
+        }
+        #helpPanel.show { display: block; }
+        .shortcut { 
+            display: flex; 
+            justify-content: space-between; 
+            padding: 6px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .key {
+            background: #f0f0f0;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-weight: bold;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 关卡编辑器 - 终极完整版</h1>
+        <div class="toolbar">
+            <div class="tool-group">
+                <button class="tool active" data-tool="platform">🟫 平台</button>
+                <button class="tool" data-tool="moving">🔄 移动平台</button>
+                <button class="tool" data-tool="bounce">🔵 弹跳板</button>
+                <button class="tool" data-tool="enemy">👾 敌人</button>
+                <button class="tool" data-tool="spike">🔺 尖刺</button>
+                <button class="tool" data-tool="coin">🪙 金币</button>
+                <button class="tool" data-tool="spawn">🟢 出生</button>
+                <button class="tool" data-tool="goal">⭐ 终点</button>
+                <button class="tool" data-tool="erase">🧹 擦除</button>
+            </div>
+            <span class="spacer"></span>
+            <button class="action" id="gridBtn">📏 32px</button>
+            <button class="action" id="undoBtn">↶ 撤销</button>
+            <button class="action" id="redoBtn">↷ 重做</button>
+            <button class="action" id="testBtn">▶️ 测试</button>
+            <button class="action" id="editBtn" style="display:none">✏️ 编辑</button>
+            <button class="action" id="clearBtn">🗑️ 清空</button>
+            <button class="action" id="saveBtn">💾 保存</button>
+            <button class="action" id="loadBtn">📂 加载</button>
+        </div>
+        <div class="canvas-wrapper">
+            <div class="props-panel">
+                <div>
+                    <label>关卡名:</label>
+                    <input type="text" id="levelName" placeholder="我的关卡" value="我的关卡">
+                </div>
+                <div>
+                    <label>作者:</label>
+                    <input type="text" id="levelAuthor" placeholder="XMeow" value="XMeow">
+                </div>
+                <button class="action" id="helpBtn" style="margin-left: auto;">❓ 帮助 (H)</button>
+            </div>
+            <canvas id="canvas" width="1600" height="900"></canvas>
+            <div class="info">
+                <span id="mode">✏️ 编辑模式</span>
+                <span id="timer" class="timer"></span>
+                <span id="pos"></span>
+            </div>
+        </div>
+    </div>
+
+    <div id="helpPanel">
+        <h3 style="margin-bottom: 15px; color: #667eea;">⌨️ 快捷键</h3>
+        <div class="shortcut"><span>撤销</span><span class="key">Ctrl+Z</span></div>
+        <div class="shortcut"><span>重做</span><span class="key">Ctrl+Y</span></div>
+        <div class="shortcut"><span>复制关卡</span><span class="key">Ctrl+C</span></div>
+        <div class="shortcut"><span>粘贴关卡</span><span class="key">Ctrl+V</span></div>
+        <div class="shortcut"><span>切换网格</span><span class="key">G</span></div>
+        <div class="shortcut"><span>测试/编辑</span><span class="key">T</span></div>
+        <div class="shortcut"><span>保存</span><span class="key">Ctrl+S</span></div>
+        <div class="shortcut"><span>帮助</span><span class="key">H</span></div>
+        <div style="margin-top: 15px; text-align: center;">
+            <button class="action" onclick="document.getElementById('helpPanel').classList.remove('show')">关闭</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let GRID = 32;
+        const W = 1600, H = 900;
+        
+        let mode = 'edit', tool = 'platform', objects = [], player = null;
+        let drawing = false, lastX = -1, lastY = -1;
+        let startTime = 0, elapsedTime = 0, time = 0;
+        const keys = {};
+        
+        // ===== 撤销/重做系统 =====
+        let history = [], historyIndex = -1, clipboard = null;
+        
+        function saveHistory() {
+            history = history.slice(0, historyIndex + 1);
+            history.push(JSON.parse(JSON.stringify(objects)));
+            historyIndex++;
+            if (history.length > 50) { history.shift(); historyIndex--; }
+        }
+        
+        function undo() {
+            if (historyIndex > 0) {
+                historyIndex--;
+                objects = JSON.parse(JSON.stringify(history[historyIndex]));
+                render();
+            }
+        }
+        
+        function redo() {
+            if (historyIndex < history.length - 1) {
+                historyIndex++;
+                objects = JSON.parse(JSON.stringify(history[historyIndex]));
+                render();
+            }
+        }
+        
+        saveHistory();
+        
+        // ===== 音效系统 =====
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playSound(type) {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            const now = audioCtx.currentTime;
+            
+            switch(type) {
+                case 'jump':
+                    osc.frequency.setValueAtTime(400, now);
+                    osc.frequency.exponentialRampToValueAtTime(600, now + 0.1);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                    osc.start(now); osc.stop(now + 0.1);
+                    break;
+                case 'coin':
+                    osc.frequency.setValueAtTime(800, now);
+                    osc.frequency.exponentialRampToValueAtTime(1200, now + 0.05);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+                    osc.start(now); osc.stop(now + 0.15);
+                    break;
+                case 'death':
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(300, now);
+                    osc.frequency.exponentialRampToValueAtTime(50, now + 0.3);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now); osc.stop(now + 0.3);
+                    break;
+                case 'win':
+                    [0, 0.1, 0.2].forEach((t, i) => {
+                        const o = audioCtx.createOscillator();
+                        const g = audioCtx.createGain();
+                        o.connect(g); g.connect(audioCtx.destination);
+                        o.frequency.value = [523, 659, 784][i];
+                        g.gain.setValueAtTime(0.2, now + t);
+                        g.gain.exponentialRampToValueAtTime(0.01, now + t + 0.3);
+                        o.start(now + t); o.stop(now + t + 0.3);
+                    });
+                    break;
+            }
+        }
+        
+        // ===== 粒子系统 =====
+        let particles = [];
+        class Particle {
+            constructor(x, y, vx, vy, color, life, size = 3) {
+                this.x = x; this.y = y; this.vx = vx; this.vy = vy;
+                this.color = color; this.life = life; this.maxLife = life; this.size = size;
+            }
+            update() { this.x += this.vx; this.y += this.vy; this.vy += 0.3; this.life--; }
+            draw() {
+                ctx.globalAlpha = this.life / this.maxLife;
+                ctx.fillStyle = this.color;
+                ctx.fillRect(this.x, this.y, this.size, this.size);
+                ctx.globalAlpha = 1;
+            }
+        }
+        
+        // 右键编辑属性
+        function editProperties(e) {
+            if (mode !== 'edit') return;
+            const r = canvas.getBoundingClientRect();
+            const x = Math.floor((e.clientX - r.left) / r.width * W / GRID) * GRID;
+            const y = Math.floor((e.clientY - r.top) / r.height * H / GRID) * GRID;
+            
+            const obj = objects.find(o => o.x === x && o.y === y);
+            if (!obj) return;
+            
+            if (obj.type === 'moving') {
+                const newRange = prompt('移动范围（格数，当前：' + (obj.range / GRID) + '）', obj.range / GRID);
+                if (newRange !== null) {
+                    obj.range = parseInt(newRange) * GRID;
+                    render();
+                }
+            } else if (obj.type === 'enemy') {
+                const newRange = prompt('巡逻范围（格数，当前：' + (obj.range / GRID) + '）', obj.range / GRID);
+                if (newRange !== null) {
+                    obj.range = parseInt(newRange) * GRID;
+                    render();
+                }
+            }
+        }
+        
+        function createParticles(x, y, count, type) {
+            for (let i = 0; i < count; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 3 + 1;
+                let color, life;
+                switch(type) {
+                    case 'jump':
+                        color = '#8b7355'; life = 20;
+                        particles.push(new Particle(x + Math.random() * 24, y + 32, 
+                            Math.cos(angle) * speed * 0.5, -Math.abs(Math.sin(angle)) * speed - 2, color, life, 2));
+                        break;
+                    case 'coin':
+                        color = ['#ffd700', '#ffed4e', '#fff'][Math.floor(Math.random() * 3)]; life = 30;
+                        particles.push(new Particle(x + GRID/2, y + GRID/2, 
+                            Math.cos(angle) * speed * 2, Math.sin(angle) * speed * 2, color, life, 4));
+                        break;
+                    case 'death':
+                        color = ['#ff0000', '#ff6600', '#ffaa00'][Math.floor(Math.random() * 3)]; life = 40;
+                        particles.push(new Particle(x + 12, y + 16, 
+                            Math.cos(angle) * speed * 3, Math.sin(angle) * speed * 3, color, life, 5));
+                        break;
+                }
+            }
+        }
+        
+        // 工具切换
+        document.querySelectorAll('.tool').forEach(btn => {
+            btn.onclick = () => {
+                document.querySelectorAll('.tool').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                tool = btn.dataset.tool;
+            };
+        });
+        
+        // 网格切换
+        document.getElementById('gridBtn').onclick = () => {
+            const sizes = [16, 32, 64];
+            const idx = sizes.indexOf(GRID);
+            GRID = sizes[(idx + 1) % sizes.length];
+            document.getElementById('gridBtn').textContent = `📏 ${GRID}px`;
+            render();
+        };
+        
+        // 撤销/重做按钮
+        document.getElementById('undoBtn').onclick = undo;
+        document.getElementById('redoBtn').onclick = redo;
+        
+        // 帮助面板
+        document.getElementById('helpBtn').onclick = () => {
+            document.getElementById('helpPanel').classList.toggle('show');
+        };
+        
+        // 画布交互
+        canvas.onmousedown = e => { 
+            if (e.button === 2) { // 右键
+                e.preventDefault();
+                editProperties(e);
+            } else {
+                drawing = true; 
+                draw(e); 
+            }
+        };
+        canvas.oncontextmenu = e => e.preventDefault();
+        canvas.onmousemove = e => {
+            const r = canvas.getBoundingClientRect();
+            const gx = Math.floor((e.clientX - r.left) / r.width * W / GRID);
+            const gy = Math.floor((e.clientY - r.top) / r.height * H / GRID);
+            document.getElementById('pos').textContent = `${gx}, ${gy}`;
+            if (drawing && mode === 'edit') draw(e);
+        };
+        canvas.onmouseup = canvas.onmouseleave = () => { 
+            if (drawing) saveHistory();
+            drawing = false; 
+            lastX = lastY = -1; 
+        };
+        
+        function draw(e) {
+            if (mode !== 'edit') return;
+            const r = canvas.getBoundingClientRect();
+            const x = Math.floor((e.clientX - r.left) / r.width * W / GRID) * GRID;
+            const y = Math.floor((e.clientY - r.top) / r.height * H / GRID) * GRID;
+            if (x === lastX && y === lastY) return;
+            lastX = x; lastY = y;
+            
+            if (tool === 'erase') {
+                objects = objects.filter(o => !(o.x === x && o.y === y));
+            } else {
+                objects = objects.filter(o => !(o.x === x && o.y === y));
+                if (tool === 'spawn') objects = objects.filter(o => o.type !== 'spawn');
+                if (tool === 'goal') objects = objects.filter(o => o.type !== 'goal');
+                
+                const obj = { type: tool, x, y };
+                if (tool === 'moving') {
+                    obj.startX = x;
+                    obj.range = GRID * 4;  // 右键点击可修改
+                    obj.speed = 2;
+                    obj.offset = 0;
+                }
+                if (tool === 'enemy') {
+                    obj.startX = x;
+                    obj.range = GRID * 3;  // 右键点击可修改
+                    obj.speed = 1.5;
+                    obj.offset = 0;
+                    obj.dir = 1;
+                }
+                objects.push(obj);
+            }
+            render();
+        }
+        
+        // 渲染
+        function render() {
+            // 背景渐变
+            const gradient = ctx.createLinearGradient(0, 0, 0, H);
+            gradient.addColorStop(0, '#87ceeb');
+            gradient.addColorStop(0.7, '#b0d4f1');
+            gradient.addColorStop(1, '#e0f0ff');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, W, H);
+            
+            if (mode === 'edit') {
+                ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+                ctx.lineWidth = 1;
+                for (let i = 0; i <= W; i += GRID) {
+                    ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, H); ctx.stroke();
+                }
+                for (let i = 0; i <= H; i += GRID) {
+                    ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(W, i); ctx.stroke();
+                }
+            }
+            
+            objects.forEach(o => {
+                switch(o.type) {
+                    case 'platform':
+                        ctx.fillStyle = '#8b4513';
+                        ctx.fillRect(o.x, o.y, GRID, GRID);
+                        ctx.strokeStyle = '#654321';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(o.x, o.y, GRID, GRID);
+                        break;
+                    
+                    case 'moving':
+                        if (mode === 'test') {
+                            o.offset += o.speed;
+                            if (o.offset >= o.range || o.offset <= 0) o.speed *= -1;
+                            o.x = o.startX + o.offset;
+                        }
+                        ctx.fillStyle = '#ff8c00';
+                        ctx.fillRect(o.x, o.y, GRID, GRID);
+                        ctx.strokeStyle = '#ff6600';
+                        ctx.lineWidth = 3;
+                        ctx.strokeRect(o.x, o.y, GRID, GRID);
+                        if (mode === 'edit') {
+                            ctx.strokeStyle = '#ffaa00';
+                            ctx.setLineDash([5, 5]);
+                            ctx.strokeRect(o.startX, o.y, o.range, GRID);
+                            ctx.setLineDash([]);
+                        }
+                        break;
+                    
+                    case 'bounce':
+                        ctx.fillStyle = '#00bfff';
+                        ctx.fillRect(o.x, o.y, GRID, GRID);
+                        ctx.fillStyle = '#fff';
+                        ctx.font = 'bold 20px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('↑', o.x + GRID/2, o.y + GRID/2 + 7);
+                        break;
+                    
+                    case 'enemy':
+                        if (mode === 'test') {
+                            o.offset += o.speed * o.dir;
+                            if (o.offset >= o.range) { o.offset = o.range; o.dir = -1; }
+                            if (o.offset <= 0) { o.offset = 0; o.dir = 1; }
+                            o.x = o.startX + o.offset;
+                        }
+                        ctx.fillStyle = '#ff1493';
+                        ctx.fillRect(o.x + 4, o.y, GRID - 8, GRID);
+                        ctx.fillStyle = '#fff';
+                        ctx.fillRect(o.x + 8, o.y + 8, 6, 6);
+                        ctx.fillRect(o.x + GRID - 14, o.y + 8, 6, 6);
+                        if (mode === 'edit') {
+                            ctx.strokeStyle = '#ff69b4';
+                            ctx.setLineDash([5, 5]);
+                            ctx.strokeRect(o.startX, o.y, o.range, GRID);
+                            ctx.setLineDash([]);
+                        }
+                        break;
+                    
+                    case 'spike':
+                        ctx.fillStyle = '#ff0000';
+                        ctx.beginPath();
+                        ctx.moveTo(o.x, o.y + GRID);
+                        ctx.lineTo(o.x + GRID/2, o.y);
+                        ctx.lineTo(o.x + GRID, o.y + GRID);
+                        ctx.fill();
+                        break;
+                    
+                    case 'coin':
+                        const rotation = mode === 'test' ? (time * 0.1) % (Math.PI * 2) : 0;
+                        const scale = Math.abs(Math.cos(rotation));
+                        ctx.save();
+                        ctx.translate(o.x + GRID/2, o.y + GRID/2);
+                        ctx.fillStyle = '#ffd700';
+                        ctx.beginPath();
+                        ctx.ellipse(0, 0, GRID/3 * scale, GRID/3, 0, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.fillStyle = '#ffed4e';
+                        ctx.beginPath();
+                        ctx.ellipse(0, 0, GRID/4 * scale, GRID/4, 0, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.restore();
+                        break;
+                    
+                    case 'spawn':
+                        ctx.fillStyle = '#00ff00';
+                        ctx.fillRect(o.x + 4, o.y, GRID - 8, GRID);
+                        break;
+                    
+                    case 'goal':
+                        ctx.save();
+                        ctx.translate(o.x + GRID/2, o.y + GRID/2);
+                        if (mode === 'test') ctx.rotate(time * 0.05);
+                        ctx.fillStyle = '#ffff00';
+                        ctx.beginPath();
+                        for (let i = 0; i < 5; i++) {
+                            const angle = (i * 4 * Math.PI / 5) - Math.PI / 2;
+                            const r = i % 2 === 0 ? GRID/2 : GRID/4;
+                            const px = Math.cos(angle) * r;
+                            const py = Math.sin(angle) * r;
+                            if (i === 0) ctx.moveTo(px, py);
+                            else ctx.lineTo(px, py);
+                        }
+                        ctx.closePath();
+                        ctx.fill();
+                        ctx.restore();
+                        break;
+                }
+            });
+            
+            // 粒子
+            particles = particles.filter(p => p.life > 0);
+            particles.forEach(p => { p.update(); p.draw(); });
+            
+            // 玩家
+            if (mode === 'test' && player) {
+                let offsetY = 0, squash = 1, stretch = 1;
+                if (!player.ground && player.vy < 0) { stretch = 1.1; squash = 0.9; }
+                else if (!player.ground && player.vy > 5) { stretch = 0.9; squash = 1.1; }
+                else if (player.ground && player.vx !== 0) offsetY = Math.sin(time * 0.3) * 2;
+                
+                ctx.save();
+                ctx.translate(player.x + 12, player.y + 16);
+                ctx.scale(squash, stretch);
+                ctx.translate(-12, -16);
+                ctx.fillStyle = player.ground ? '#0066ff' : '#00aaff';
+                ctx.fillRect(0, offsetY, 24, 32);
+                ctx.fillStyle = '#fff';
+                const eyeY = player.vy < 0 ? 6 : 8;
+                ctx.fillRect(6, offsetY + eyeY, 4, 4);
+                ctx.fillRect(14, offsetY + eyeY, 4, 4);
+                ctx.restore();
+            }
+        }
+        
+        // 测试模式
+        document.getElementById('testBtn').onclick = () => {
+            const spawn = objects.find(o => o.type === 'spawn');
+            if (!spawn) return alert('请先放置出生点');
+            mode = 'test';
+            player = { x: spawn.x + 4, y: spawn.y, vx: 0, vy: 0, ground: false };
+            startTime = Date.now();
+            elapsedTime = 0;
+            
+            // 重置移动平台和敌人
+            objects.forEach(o => {
+                if (o.type === 'moving' || o.type === 'enemy') {
+                    o.offset = 0;
+                    o.x = o.startX;
+                    if (o.type === 'moving') o.speed = Math.abs(o.speed);
+                    if (o.type === 'enemy') o.dir = 1;
+                }
+            });
+            
+            document.getElementById('testBtn').style.display = 'none';
+            document.getElementById('editBtn').style.display = 'inline-block';
+            document.getElementById('mode').textContent = '▶️ 测试模式 - WASD/方向键移动，空格跳跃';
+            canvas.style.cursor = 'default';
+            loop();
+        };
+        
+        document.getElementById('editBtn').onclick = () => {
+            mode = 'edit';
+            player = null;
+            document.getElementById('testBtn').style.display = 'inline-block';
+            document.getElementById('editBtn').style.display = 'none';
+            document.getElementById('mode').textContent = '✏️ 编辑模式';
+            document.getElementById('timer').textContent = '';
+            canvas.style.cursor = 'crosshair';
+            
+            // 重置所有动态对象位置
+            objects.forEach(o => {
+                if (o.type === 'moving' || o.type === 'enemy') {
+                    o.x = o.startX;
+                    o.offset = 0;
+                }
+            });
+            render();
+        };
+        
+        // 键盘
+        window.onkeydown = e => {
+            keys[e.key] = true;
+            
+            // 快捷键
+            if (e.ctrlKey && e.key === 'z') { e.preventDefault(); undo(); }
+            if (e.ctrlKey && e.key === 'y') { e.preventDefault(); redo(); }
+            if (e.ctrlKey && e.key === 'c') { 
+                e.preventDefault(); 
+                clipboard = JSON.parse(JSON.stringify(objects));
+                alert('已复制关卡！');
+            }
+            if (e.ctrlKey && e.key === 'v') { 
+                e.preventDefault(); 
+                if (clipboard) {
+                    objects = JSON.parse(JSON.stringify(clipboard));
+                    saveHistory();
+                    render();
+                    alert('已粘贴关卡！');
+                }
+            }
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                document.getElementById('saveBtn').click();
+            }
+            if (e.key === 'g' || e.key === 'G') {
+                e.preventDefault();
+                document.getElementById('gridBtn').click();
+            }
+            if (e.key === 't' || e.key === 'T') {
+                e.preventDefault();
+                if (mode === 'edit') document.getElementById('testBtn').click();
+                else document.getElementById('editBtn').click();
+            }
+            if (e.key === 'h' || e.key === 'H') {
+                e.preventDefault();
+                document.getElementById('helpBtn').click();
+            }
+            
+            if (mode === 'test' && [' ', 'ArrowUp', 'w', 'W'].includes(e.key)) {
+                e.preventDefault();
+                if (player.ground) {
+                    player.vy = -12;
+                    playSound('jump');
+                    createParticles(player.x, player.y, 8, 'jump');
+                }
+            }
+        };
+        window.onkeyup = e => keys[e.key] = false;
+        
+        // 碰撞检测
+        function hit(a, b) {
+            return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+        }
+        
+        // 重生
+        function respawn() {
+            const spawn = objects.find(s => s.type === 'spawn');
+            if (spawn) {
+                player.x = spawn.x + 4;
+                player.y = spawn.y;
+                player.vx = player.vy = 0;
+            }
+        }
+        
+        // 游戏循环
+        function loop() {
+            if (mode !== 'test' || !player) return;
+            
+            time++;
+            
+            // 更新计时器
+            elapsedTime = Date.now() - startTime;
+            const sec = Math.floor(elapsedTime / 1000);
+            const ms = Math.floor((elapsedTime % 1000) / 10);
+            document.getElementById('timer').textContent = `⏱️ ${sec}.${ms.toString().padStart(2, '0')}s`;
+            
+            // 玩家移动
+            player.vx = (keys.ArrowLeft || keys.a || keys.A) ? -5 : (keys.ArrowRight || keys.d || keys.D) ? 5 : 0;
+            player.vy = Math.min(player.vy + 0.6, 15);
+            
+            player.x += player.vx;
+            if (player.x < 0) player.x = 0;
+            if (player.x > W - 24) player.x = W - 24;
+            
+            player.y += player.vy;
+            const wasGround = player.ground;
+            player.ground = false;
+            
+            // 碰撞检测
+            objects.forEach(o => {
+                const p = { x: o.x, y: o.y, w: GRID, h: GRID };
+                const pl = { x: player.x, y: player.y, w: 24, h: 32 };
+                
+                // 平台和移动平台
+                if (o.type === 'platform' || o.type === 'moving') {
+                    if (hit(pl, p)) {
+                        if (player.vy > 0 && player.y + 32 - player.vy <= p.y) {
+                            player.y = p.y - 32;
+                            player.vy = 0;
+                            player.ground = true;
+                            if (o.type === 'moving') player.x += o.speed;
+                        } else if (player.vy < 0 && player.y - player.vy >= p.y + p.h) {
+                            player.y = p.y + p.h;
+                            player.vy = 0;
+                        }
+                    }
+                }
+                
+                // 弹跳板
+                if (o.type === 'bounce' && hit(pl, p)) {
+                    if (player.vy > 0) {
+                        player.vy = -18;
+                        player.ground = false;
+                        playSound('jump');
+                        createParticles(player.x, player.y, 12, 'jump');
+                    }
+                }
+                
+                // 尖刺 - 重生
+                if (o.type === 'spike' && hit(pl, p)) {
+                    playSound('death');
+                    createParticles(player.x, player.y, 20, 'death');
+                    setTimeout(respawn, 100);
+                }
+                
+                // 敌人 - 重生
+                if (o.type === 'enemy' && hit(pl, p)) {
+                    playSound('death');
+                    createParticles(player.x, player.y, 20, 'death');
+                    setTimeout(respawn, 100);
+                }
+                
+                // 金币 - 收集
+                if (o.type === 'coin' && hit(pl, p)) {
+                    playSound('coin');
+                    createParticles(o.x, o.y, 15, 'coin');
+                    objects = objects.filter(obj => obj !== o);
+                }
+                
+                // 终点 - 完成
+                if (o.type === 'goal' && hit(pl, p)) {
+                    playSound('win');
+                    createParticles(o.x, o.y, 30, 'coin');
+                    const finalTime = (elapsedTime / 1000).toFixed(2);
+                    alert(`🎉 完成！用时：${finalTime}秒`);
+                    document.getElementById('editBtn').click();
+                }
+            });
+            
+            // 掉落重生
+            if (player.y > H) {
+                playSound('death');
+                respawn();
+            }
+            
+            render();
+            requestAnimationFrame(loop);
+        }
+        
+        // 清空/保存/加载
+        document.getElementById('clearBtn').onclick = () => {
+            if (confirm('确定清空？')) { 
+                objects = []; 
+                saveHistory();
+                render(); 
+            }
+        };
+        
+        document.getElementById('saveBtn').onclick = () => {
+            const levelData = {
+                name: document.getElementById('levelName').value,
+                author: document.getElementById('levelAuthor').value,
+                objects: objects
+            };
+            const data = JSON.stringify(levelData, null, 2);
+            localStorage.setItem('level-ultimate', data);
+            const a = document.createElement('a');
+            a.href = 'data:text/json,' + encodeURIComponent(data);
+            a.download = `${levelData.name}.json`;
+            a.click();
+            alert('已保存！');
+        };
+        
+        document.getElementById('loadBtn').onclick = () => {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = e => {
+                const reader = new FileReader();
+                reader.onload = ev => {
+                    try {
+                        const levelData = JSON.parse(ev.target.result);
+                        if (levelData.objects) {
+                            objects = levelData.objects;
+                            document.getElementById('levelName').value = levelData.name || '我的关卡';
+                            document.getElementById('levelAuthor').value = levelData.author || 'XMeow';
+                            saveHistory();
+                            render();
+                            alert('加载成功！');
+                        } else {
+                            objects = levelData;
+                            saveHistory();
+                            render();
+                            alert('加载成功！');
+                        }
+                    } catch { alert('文件错误！'); }
+                };
+                reader.readAsText(e.target.files[0]);
+            };
+            input.click();
+        };
+        
+        // 初始化
+        const saved = localStorage.getItem('level-ultimate');
+        if (saved) {
+            try { 
+                const levelData = JSON.parse(saved);
+                if (levelData.objects) {
+                    objects = levelData.objects;
+                    document.getElementById('levelName').value = levelData.name || '我的关卡';
+                    document.getElementById('levelAuthor').value = levelData.author || 'XMeow';
+                } else {
+                    objects = levelData;
+                }
+                saveHistory();
+            } catch {}
+        }
+        render();
+    </script>
+</body>
+</html>
