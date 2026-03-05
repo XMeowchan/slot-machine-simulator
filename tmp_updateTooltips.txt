@@ -1,0 +1,120 @@
+            if (!gameInProgress || playerHand.length === 0) return;
+
+            const probs = calculateHitProbabilities();
+            
+            // 要牌提示
+            const hitTooltip = document.getElementById('hitTooltip');
+            hitTooltip.innerHTML = `
+                <div class="tooltip-title">?? 要牌概率分析</div>
+                <div class="tooltip-row">
+                    <span class="tooltip-label">爆牌概率：</span>
+                    <span class="tooltip-value ${parseFloat(probs.bustProb) > 50 ? 'danger' : parseFloat(probs.bustProb) > 30 ? 'warning' : 'safe'}">${probs.bustProb}%</span>
+                </div>
+                <div class="tooltip-row">
+                    <span class="tooltip-label">21点概率：</span>
+                    <span class="tooltip-value safe">${probs.blackjackProb}%</span>
+                </div>
+                <div class="tooltip-row">
+                    <span class="tooltip-label">安全概率：</span>
+                    <span class="tooltip-value safe">${probs.safeProb}%</span>
+                </div>
+                ${probs.mostLikelyValue ? `
+                <div class="tooltip-row">
+                    <span class="tooltip-label">最可能点数：</span>
+                    <span class="tooltip-value">${probs.mostLikelyValue}点 (${probs.mostLikelyProb}%)</span>
+                </div>
+                ` : ''}
+            `;
+
+            // 停牌提示
+            const standStats = calculateStandWinRate();
+            const standTooltip = document.getElementById('standTooltip');
+            standTooltip.innerHTML = `
+                <div class="tooltip-title">?? 停牌胜率分析</div>
+                <div class="tooltip-row">
+                    <span class="tooltip-label">你的点数：</span>
+                    <span class="tooltip-value">${standStats.playerValue}点</span>
+                </div>
+                <div class="tooltip-row">
+                    <span class="tooltip-label">庄家明牌：</span>
+                    <span class="tooltip-value">${standStats.dealerVisibleValue}点</span>
+                </div>
+                <div class="tooltip-row">
+                    <span class="tooltip-label">预计胜率：</span>
+                    <span class="tooltip-value ${parseFloat(standStats.winRate) > 50 ? 'safe' : parseFloat(standStats.winRate) > 40 ? 'warning' : 'danger'}">${standStats.winRate}%</span>
+                </div>
+                <div class="tooltip-row">
+                    <span class="tooltip-label">预计输率：</span>
+                    <span class="tooltip-value">${standStats.loseRate}%</span>
+                </div>
+                <div class="tooltip-row">
+                    <span class="tooltip-label">平局概率：</span>
+                    <span class="tooltip-value">${standStats.pushRate}%</span>
+                </div>
+            `;
+
+            // 加倍提示（加倍后只能拿一张牌）
+            const doubleTooltip = document.getElementById('doubleTooltip');
+            doubleTooltip.innerHTML = `
+                <div class="tooltip-title">?? 加倍分析</div>
+                <div class="tooltip-row">
+                    <span class="tooltip-label">下注翻倍：</span>
+                    <span class="tooltip-value warning">￥${currentBet} → ￥${currentBet * 2}</span>
+                </div>
+                <div class="tooltip-row">
+                    <span class="tooltip-label">爆牌风险：</span>
+                    <span class="tooltip-value ${parseFloat(probs.bustProb) > 50 ? 'danger' : parseFloat(probs.bustProb) > 30 ? 'warning' : 'safe'}">${probs.bustProb}%</span>
+                </div>
+                <div class="tooltip-row">
+                    <span class="tooltip-label">只能拿一张牌</span>
+                </div>
+            `;
+        }
+
+        // 渲染卡牌
+        function renderCard(card, hidden = false, animate = false) {
+            const cardEl = document.createElement('div');
+            cardEl.className = `card ${['?', '?'].includes(card.suit) ? 'red' : 'black'}`;
+            
+            if (hidden) {
+                cardEl.className = 'card back';
+                cardEl.textContent = '??';
+            } else {
+                cardEl.innerHTML = `
+                    <div class="card-value">${card.value}</div>
+                    <div class="card-suit">${card.suit}</div>
+                `;
+            }
+
+            // 只在新发牌时添加动画
+            if (animate) {
+                cardEl.style.animation = 'cardDeal 0.3s ease-out';
+            }
+            
+            return cardEl;
+        }
+
+        // 更新显示
+        function updateDisplay(animateNew = false) {
+            // 庄家的牌
+            const dealerCardsEl = document.getElementById('dealerCards');
+            const currentDealerCards = Array.from(dealerCardsEl.children);
+            
+            // 只添加新牌
+            for (let i = currentDealerCards.length; i < dealerHand.length; i++) {
+                const card = dealerHand[i];
+                const hidden = gameInProgress && i === 0 && dealerHiddenCard;
+                const cardEl = renderCard(card, hidden, animateNew);
+                dealerCardsEl.appendChild(cardEl);
+            }
+
+            // 如果需要翻开庄家的第一张牌
+            if (!dealerHiddenCard && currentDealerCards.length > 0) {
+                const firstCard = currentDealerCards[0];
+                if (firstCard.classList.contains('back')) {
+                    const newCard = renderCard(dealerHand[0], false, false);
+                    dealerCardsEl.replaceChild(newCard, firstCard);
+                }
+            }
+
+            // 玩家的牌

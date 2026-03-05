@@ -206,15 +206,17 @@
         }
 
         .card-value {
-            font-size: 0.4em;
+            font-size: 0.56em;
             position: absolute;
             top: 4px;
             left: 6px;
-            font-weight: bold;
+            font-weight: 900;
+            line-height: 1;
         }
 
         .card-suit {
-            font-size: 0.5em;
+            font-size: 0.58em;
+            line-height: 1;
         }
 
         .hand-value {
@@ -407,125 +409,18 @@
             color: #ef4444;
         }
 
-        @media (max-width: 768px) {
-            body {
-                padding: 5px;
+        
+            .cards .card .card-value {
+                font-size: 1em !important;
+                top: 2px !important;
+                left: 4px !important;
+                line-height: 1 !important;
             }
 
-            .container {
-                padding: 12px;
-                border-radius: 12px;
+            .cards .card .card-suit {
+                font-size: 0.86em !important;
+                line-height: 1 !important;
             }
-
-            h1 {
-                font-size: 1.5em;
-                margin-bottom: 6px;
-            }
-
-            .subtitle {
-                font-size: 0.75em;
-                margin-bottom: 10px;
-            }
-
-            .stats {
-                grid-template-columns: repeat(3, 1fr);
-                gap: 6px;
-                margin-bottom: 10px;
-            }
-
-            .stat-item {
-                padding: 8px 6px;
-            }
-
-            .stat-label {
-                font-size: 0.7em;
-            }
-
-            .stat-value {
-                font-size: 1.2em;
-            }
-
-            .game-table {
-                padding: 10px;
-                margin-bottom: 10px;
-                border-radius: 10px;
-            }
-
-            .dealer-area, .player-area {
-                padding: 10px;
-                margin-bottom: 8px;
-            }
-
-            .area-title {
-                font-size: 1em;
-                margin-bottom: 8px;
-            }
-
-            .cards {
-                gap: 5px;
-                min-height: 75px;
-            }
-
-            .card {
-                width: 48px;
-                height: 70px;
-                font-size: 1.6em;
-                border-radius: 5px;
-            }
-
-            .card-value {
-                font-size: 0.35em;
-                top: 3px;
-                left: 5px;
-            }
-
-            .card-suit {
-                font-size: 0.45em;
-            }
-
-            .hand-value {
-                font-size: 1em;
-                margin-top: 5px;
-            }
-
-            .result-message {
-                font-size: 1.1em;
-                margin: 8px 0;
-                min-height: 35px;
-            }
-
-            .bet-label {
-                font-size: 0.85em;
-                margin-bottom: 6px;
-            }
-
-            .bet-buttons {
-                gap: 5px;
-                margin-bottom: 8px;
-            }
-
-            .bet-btn {
-                padding: 7px 14px;
-                font-size: 0.85em;
-                flex: 1;
-                min-width: 60px;
-            }
-
-            .action-buttons {
-                gap: 5px;
-            }
-
-            .action-btn {
-                padding: 11px 20px;
-                font-size: 0.95em;
-                min-width: 85px;
-            }
-
-            .action-btn .tooltip {
-                display: none !important;
-            }
-
-            .result-popup {
                 padding: 25px 20px;
                 max-width: 85%;
             }
@@ -675,7 +570,35 @@
             transform: translateY(-3px);
             box-shadow: 0 8px 25px rgba(255, 215, 0, 0.6);
         }
-    </style>
+    
+        /* Blackjack card visibility hard override */
+        .cards .card {
+            background: #ffffff !important;
+            opacity: 1 !important;
+            backdrop-filter: none !important;
+            border: 2px solid #d1d5db !important;
+        }
+
+        .cards .card.back {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%) !important;
+            color: #ffffff !important;
+            border-color: #1d4ed8 !important;
+            opacity: 1 !important;
+        }
+
+        .cards .card .card-value {
+            font-size: 1.12em !important;
+            font-weight: 900 !important;
+            line-height: 1 !important;
+            top: 2px !important;
+            left: 4px !important;
+        }
+
+        .cards .card .card-suit {
+            font-size: 0.96em !important;
+            line-height: 1 !important;
+        }
+</style>
 </head>
 <body>
     <div class="container">
@@ -1355,6 +1278,11 @@
     <script src='mobile-unified.js'></script>
 </body>
 </html>
+
+
+
+
+
 
 
 
