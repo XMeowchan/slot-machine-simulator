@@ -68,7 +68,6 @@ h1 {
 .global-balance,
 .zone,
 .rule,
-.card,
 .game-card,
 .bet-section,
 .dice-area,
@@ -83,7 +82,6 @@ h1 {
 .status-card,
 .stat-item,
 .game-card,
-.card,
 .bet-section,
 .rule,
 .zone,
@@ -323,3 +321,8 @@ body.ui-shell .stat-item::after {
     font-size: .76rem;
   }
 }
+
+/* Keep blackjack cards readable */
+.cards .card { background: #ffffff !important; color: #1f2937 !important; border: 2px solid #e5e7eb !important; }
+.cards .card.back { background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%) !important; color: #ffffff !important; border-color: #1d4ed8 !important; }
+
