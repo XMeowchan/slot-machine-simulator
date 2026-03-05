@@ -10,6 +10,14 @@
   --cg-accent-strong: #ffb86f;
   --cg-ok: #39ce92;
   --cg-bad: #ff7f8b;
+  --cg-radius: 14px;
+  --cg-gap: 12px;
+  --cg-shadow: 0 14px 40px rgba(0, 0, 0, 0.38);
+  --cg-transition: 180ms cubic-bezier(.2,.6,.2,1);
+}
+
+html, body {
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -26,17 +34,19 @@ body {
   background: linear-gradient(160deg, var(--cg-panel), var(--cg-panel-strong)) !important;
   border: 1px solid var(--cg-line) !important;
   border-radius: 16px !important;
-  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.38) !important;
+  box-shadow: var(--cg-shadow) !important;
   width: min(100%, 980px) !important;
   margin: 0 auto !important;
 }
 
+.ui-title,
 h1 {
   color: var(--cg-accent) !important;
   text-shadow: 0 0 18px rgba(255, 216, 138, 0.28) !important;
   line-height: 1.2;
 }
 
+.ui-subtitle,
 .subtitle,
 .stat-label,
 .balance-label,
@@ -47,37 +57,6 @@ h1 {
 .footer,
 .meta {
   color: var(--cg-muted) !important;
-}
-
-.back-btn,
-.back,
-.reset-balance-btn,
-.bet-btn,
-.btn,
-.game-status,
-.resume-btn,
-.buy-btn,
-.spin-btn,
-.play-btn {
-  border-radius: 10px !important;
-}
-
-.back-btn,
-.back,
-.reset-balance-btn {
-  background: rgba(255, 255, 255, 0.08) !important;
-  border: 1px solid rgba(255, 255, 255, 0.16) !important;
-  color: var(--cg-text) !important;
-}
-
-.buy-btn,
-.btn.pri,
-.spin-btn,
-.play-btn,
-.resume-btn {
-  background: linear-gradient(140deg, var(--cg-accent), var(--cg-accent-strong)) !important;
-  color: #1d1306 !important;
-  font-weight: 800 !important;
 }
 
 .status-card,
@@ -95,8 +74,23 @@ h1 {
 .dice-area,
 .jackpot-display,
 .multiplier-display,
-.box {
+.box,
+.resume-panel {
   border-color: rgba(255, 216, 138, 0.22) !important;
+  border-radius: var(--cg-radius) !important;
+}
+
+.status-card,
+.stat-item,
+.game-card,
+.card,
+.bet-section,
+.rule,
+.zone,
+.global-balance,
+.box {
+  background: linear-gradient(165deg, rgba(255,255,255,.06), rgba(255,255,255,.02)) !important;
+  backdrop-filter: blur(2px);
 }
 
 .balance-amount,
@@ -117,43 +111,97 @@ h1 {
   color: var(--cg-bad) !important;
 }
 
+.ui-interactive {
+  transition: transform var(--cg-transition), box-shadow var(--cg-transition), filter var(--cg-transition) !important;
+}
+
+.ui-interactive:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 16px rgba(0,0,0,.22);
+}
+
+.ui-interactive.is-pressed {
+  transform: scale(.985);
+  filter: brightness(.97);
+}
+
+.back-btn,
+.back,
+.reset-balance-btn,
+.bet-btn,
+.btn,
+.game-status,
+.resume-btn,
+.buy-btn,
+.spin-btn,
+.play-btn,
+.bet-tab {
+  border-radius: 10px !important;
+}
+
+.back-btn,
+.back,
+.reset-balance-btn,
+.bet-tab {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  color: var(--cg-text) !important;
+}
+
+.buy-btn,
+.btn.pri,
+.spin-btn,
+.play-btn,
+.resume-btn,
+.bet-btn.active,
+.bet-tab.active {
+  background: linear-gradient(140deg, var(--cg-accent), var(--cg-accent-strong)) !important;
+  color: #1d1306 !important;
+  font-weight: 800 !important;
+}
+
+.stats,
+.status-grid,
+.cards,
+.games-grid,
+.controls,
+.odds-grid,
+.bet-buttons,
+.acts {
+  gap: var(--cg-gap) !important;
+}
+
+body.ui-shell .container,
+body.ui-shell .box,
+body.ui-shell .zone,
+body.ui-shell .game-card,
+body.ui-shell .stat-item {
+  position: relative;
+  overflow: hidden;
+}
+
+body.ui-shell .container::after,
+body.ui-shell .box::after,
+body.ui-shell .zone::after,
+body.ui-shell .game-card::after,
+body.ui-shell .stat-item::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(255,255,255,.025) 1px, transparent 1px);
+  background-size: 3px 3px;
+  pointer-events: none;
+}
+
 @media (max-width: 900px) {
-  .container {
-    padding: 16px !important;
-    border-radius: 14px !important;
-  }
-
-  .games-grid,
-  .cards,
-  .status-grid,
-  .stats,
-  .odds-grid,
-  .acts,
-  .bar {
-    gap: 10px !important;
-  }
-
-  h1 {
-    font-size: clamp(1.35rem, 6vw, 2.1rem) !important;
-    margin-bottom: 8px !important;
-  }
-
-  .subtitle {
-    font-size: 0.88rem !important;
-    margin-bottom: 14px !important;
-  }
+  .container { padding: 16px !important; border-radius: 14px !important; }
+  h1 { font-size: clamp(1.35rem, 6vw, 2.1rem) !important; margin-bottom: 8px !important; }
+  .subtitle { font-size: 0.88rem !important; margin-bottom: 14px !important; }
 }
 
 @media (max-width: 640px) {
-  body {
-    padding: 8px !important;
-    align-items: flex-start !important;
-  }
-
-  .container {
-    padding: 12px !important;
-    max-width: 100% !important;
-  }
+  body { padding: 8px !important; align-items: flex-start !important; }
+  .container { padding: 12px !important; max-width: 100% !important; }
 
   .games-grid,
   .cards,
@@ -167,82 +215,26 @@ h1 {
     grid-template-columns: 1fr !important;
   }
 
-  .reels {
-    gap: 8px !important;
-  }
+  .reels { gap: 8px !important; }
+  .reel-container { width: min(30vw, 92px) !important; height: min(34vw, 110px) !important; }
+  .reel-symbol { min-height: min(34vw, 110px) !important; height: min(34vw, 110px) !important; }
 
-  .reel-container {
-    width: min(30vw, 92px) !important;
-    height: min(34vw, 110px) !important;
-  }
+  .dice { width: 56px !important; height: 56px !important; padding: 6px !important; }
 
-  .reel-symbol {
-    min-height: min(34vw, 110px) !important;
-    height: min(34vw, 110px) !important;
-  }
+  .wheel-container { max-width: 88vw !important; }
+  .wheel-center { width: 74px !important; height: 74px !important; font-size: 2rem !important; }
+  .wheel-pointer { top: -28px !important; border-left-width: 16px !important; border-right-width: 16px !important; border-top-width: 32px !important; }
 
-  .dice {
-    width: 56px !important;
-    height: 56px !important;
-    padding: 6px !important;
-  }
+  .card { min-height: 44px !important; font-size: 22px !important; }
+  .card .sub, .sub { font-size: 14px !important; }
 
-  .wheel-container {
-    max-width: 88vw !important;
-  }
+  .balance-amount, .status-value, .stat-value { font-size: clamp(1.2rem, 6vw, 1.8rem) !important; }
 
-  .wheel-center {
-    width: 74px !important;
-    height: 74px !important;
-    font-size: 2rem !important;
-  }
+  .bar { position: sticky !important; bottom: 0 !important; width: 100% !important; transform: none !important; left: auto !important; }
+  .hud { position: sticky !important; top: 0 !important; left: auto !important; right: auto !important; width: 100% !important; margin-bottom: 8px !important; }
+}
 
-  .wheel-pointer {
-    top: -28px !important;
-    border-left-width: 16px !important;
-    border-right-width: 16px !important;
-    border-top-width: 32px !important;
-  }
-
-  .card {
-    min-height: 44px !important;
-    font-size: 22px !important;
-  }
-
-  .card .sub,
-  .sub {
-    font-size: 14px !important;
-  }
-
-  .balance-amount,
-  .status-value,
-  .stat-value {
-    font-size: clamp(1.2rem, 6vw, 1.8rem) !important;
-  }
-
-  .game-card,
-  .status-card,
-  .stat-item,
-  .zone,
-  .head,
-  .box {
-    border-radius: 12px !important;
-  }
-
-  .bar {
-    position: sticky !important;
-    bottom: 0 !important;
-    width: 100% !important;
-    transform: none !important;
-    left: auto !important;
-  }
-
-  .hud {
-    position: sticky !important;
-    top: 0 !important;
-    left: auto !important;
-    right: auto !important;
-    width: 100% !important;
-    margin-bottom: 8px !important;
-  }
+.reduce-motion * {
+  animation: none !important;
+  transition: none !important;
 }
