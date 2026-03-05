@@ -407,23 +407,145 @@
         }
 
         @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                padding: 20px;
+            }
+
             h1 {
-                font-size: 2em;
+                font-size: 1.8em;
+                margin-bottom: 8px;
+            }
+
+            .subtitle {
+                font-size: 0.8em;
+                margin-bottom: 20px;
             }
 
             .stats {
                 grid-template-columns: 1fr;
+                gap: 10px;
+                margin-bottom: 20px;
             }
 
-            .card {
-                width: 60px;
-                height: 90px;
+            .stat-item {
+                padding: 12px;
+            }
+
+            .stat-label {
+                font-size: 0.8em;
+            }
+
+            .stat-value {
                 font-size: 1.5em;
             }
 
-            .action-btn {
-                padding: 12px 20px;
+            .game-table {
+                padding: 15px;
+                margin-bottom: 20px;
+            }
+
+            .dealer-area, .player-area {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+
+            .area-title {
+                font-size: 1.2em;
+                margin-bottom: 15px;
+            }
+
+            .cards {
+                gap: 8px;
+                min-height: 110px;
+            }
+
+            .card {
+                width: 70px;
+                height: 100px;
+                font-size: 2em;
+            }
+
+            .card-value {
+                font-size: 0.45em;
+                top: 6px;
+                left: 8px;
+            }
+
+            .card-suit {
+                font-size: 0.55em;
+            }
+
+            .hand-value {
+                font-size: 1.2em;
+                margin-top: 8px;
+            }
+
+            .result-message {
+                font-size: 1.5em;
+                margin: 15px 0;
+                min-height: 50px;
+            }
+
+            .bet-label {
                 font-size: 1em;
+                margin-bottom: 8px;
+            }
+
+            .bet-buttons {
+                gap: 8px;
+                margin-bottom: 12px;
+            }
+
+            .bet-btn {
+                padding: 10px 18px;
+                font-size: 0.95em;
+                flex: 1;
+                min-width: 70px;
+            }
+
+            .action-buttons {
+                gap: 8px;
+                flex-direction: column;
+            }
+
+            .action-btn {
+                padding: 16px 30px;
+                font-size: 1.1em;
+                min-width: 100%;
+                width: 100%;
+            }
+
+            .action-btn .tooltip {
+                display: none !important;
+            }
+
+            .result-popup {
+                padding: 30px 20px;
+                max-width: 85%;
+            }
+
+            .result-popup .icon {
+                font-size: 3.5em;
+                margin-bottom: 15px;
+            }
+
+            .result-popup .title {
+                font-size: 1.6em;
+                margin-bottom: 12px;
+            }
+
+            .result-popup .amount {
+                font-size: 2.5em;
+                margin-bottom: 20px;
+            }
+
+            .result-popup button {
+                padding: 12px 30px;
+                font-size: 1.1em;
             }
         }
 

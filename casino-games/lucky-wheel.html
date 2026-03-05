@@ -742,16 +742,16 @@
     <script>
         // 奖品配置（RTP约90%）
         const prizes = [
-            { name: '¥1000', emoji: '💎', multiplier: 100, color: '#ff6b6b', realProb: 0.002 },
-            { name: '¥500', emoji: '🏆', multiplier: 50, color: '#ff8787', realProb: 0.005 },
-            { name: '¥200', emoji: '🎖️', multiplier: 20, color: '#ffa94d', realProb: 0.015 },
-            { name: '¥100', emoji: '🥇', multiplier: 10, color: '#ffd43b', realProb: 0.03 },
-            { name: '¥50', emoji: '🥈', multiplier: 5, color: '#74c0fc', realProb: 0.08 },
-            { name: '¥30', emoji: '🥉', multiplier: 3, color: '#a9e34b', realProb: 0.12 },
-            { name: '¥20', emoji: '🎁', multiplier: 2, color: '#4ecdc4', realProb: 0.18 },
-            { name: '¥10', emoji: '🎫', multiplier: 1, color: '#b197fc', realProb: 0.25 },
-            { name: '¥5', emoji: '💸', multiplier: 0.5, color: '#868e96', realProb: 0.20 },
-            { name: '¥0', emoji: '😢', multiplier: 0, color: '#495057', realProb: 0.118 }
+            { name: '¥1000', emoji: '💎', multiplier: 100, color: '#ff6b6b', realProb: 0.0005 },  // 0.05% → 期望5
+            { name: '¥500', emoji: '🏆', multiplier: 50, color: '#ff8787', realProb: 0.001 },    // 0.1% → 期望5
+            { name: '¥200', emoji: '🎖️', multiplier: 20, color: '#ffa94d', realProb: 0.005 },   // 0.5% → 期望10
+            { name: '¥100', emoji: '🥇', multiplier: 10, color: '#ffd43b', realProb: 0.01 },    // 1% → 期望10
+            { name: '¥50', emoji: '🥈', multiplier: 5, color: '#74c0fc', realProb: 0.025 },     // 2.5% → 期望12.5
+            { name: '¥30', emoji: '🥉', multiplier: 3, color: '#a9e34b', realProb: 0.04 },      // 4% → 期望12
+            { name: '¥20', emoji: '🎁', multiplier: 2, color: '#4ecdc4', realProb: 0.08 },      // 8% → 期望16
+            { name: '¥10', emoji: '🎫', multiplier: 1, color: '#b197fc', realProb: 0.15 },      // 15% → 期望15
+            { name: '¥5', emoji: '💸', multiplier: 0.5, color: '#868e96', realProb: 0.18 },     // 18% → 期望9
+            { name: '¥0', emoji: '😢', multiplier: 0, color: '#495057', realProb: 0.4995 }      // 49.95% → 期望0
         ];
 
         // 最近抽奖记录
