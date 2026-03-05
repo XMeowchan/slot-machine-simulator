@@ -1,0 +1,248 @@
+﻿:root {
+  --cg-bg-top: #0f1e35;
+  --cg-bg-bottom: #23163a;
+  --cg-panel: rgba(11, 20, 36, 0.88);
+  --cg-panel-strong: rgba(8, 15, 28, 0.94);
+  --cg-line: rgba(255, 218, 140, 0.35);
+  --cg-text: #eef3ff;
+  --cg-muted: #b5c2d8;
+  --cg-accent: #ffd88a;
+  --cg-accent-strong: #ffb86f;
+  --cg-ok: #39ce92;
+  --cg-bad: #ff7f8b;
+}
+
+body {
+  font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif !important;
+  color: var(--cg-text) !important;
+  background:
+    radial-gradient(circle at 15% 10%, rgba(255, 200, 96, 0.16), transparent 45%),
+    radial-gradient(circle at 85% 90%, rgba(130, 92, 255, 0.2), transparent 45%),
+    linear-gradient(150deg, var(--cg-bg-top), var(--cg-bg-bottom)) !important;
+  padding: clamp(10px, 2.4vw, 20px) !important;
+}
+
+.container {
+  background: linear-gradient(160deg, var(--cg-panel), var(--cg-panel-strong)) !important;
+  border: 1px solid var(--cg-line) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.38) !important;
+  width: min(100%, 980px) !important;
+  margin: 0 auto !important;
+}
+
+h1 {
+  color: var(--cg-accent) !important;
+  text-shadow: 0 0 18px rgba(255, 216, 138, 0.28) !important;
+  line-height: 1.2;
+}
+
+.subtitle,
+.stat-label,
+.balance-label,
+.game-description,
+.rule,
+.zone-h p,
+.tip,
+.footer,
+.meta {
+  color: var(--cg-muted) !important;
+}
+
+.back-btn,
+.back,
+.reset-balance-btn,
+.bet-btn,
+.btn,
+.game-status,
+.resume-btn,
+.buy-btn,
+.spin-btn,
+.play-btn {
+  border-radius: 10px !important;
+}
+
+.back-btn,
+.back,
+.reset-balance-btn {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  color: var(--cg-text) !important;
+}
+
+.buy-btn,
+.btn.pri,
+.spin-btn,
+.play-btn,
+.resume-btn {
+  background: linear-gradient(140deg, var(--cg-accent), var(--cg-accent-strong)) !important;
+  color: #1d1306 !important;
+  font-weight: 800 !important;
+}
+
+.status-card,
+.stat-box,
+.stat-item,
+.game-table,
+.dealer-area,
+.player-area,
+.global-balance,
+.zone,
+.rule,
+.card,
+.game-card,
+.bet-section,
+.dice-area,
+.jackpot-display,
+.multiplier-display,
+.box {
+  border-color: rgba(255, 216, 138, 0.22) !important;
+}
+
+.balance-amount,
+.status-value.gold,
+.stat-value,
+.card-price,
+.jackpot-amount {
+  color: var(--cg-accent) !important;
+}
+
+.stat-value.positive,
+.bet-result-item.win .bet-result-amount {
+  color: var(--cg-ok) !important;
+}
+
+.stat-value.negative,
+.bet-result-item.lose .bet-result-amount {
+  color: var(--cg-bad) !important;
+}
+
+@media (max-width: 900px) {
+  .container {
+    padding: 16px !important;
+    border-radius: 14px !important;
+  }
+
+  .games-grid,
+  .cards,
+  .status-grid,
+  .stats,
+  .odds-grid,
+  .acts,
+  .bar {
+    gap: 10px !important;
+  }
+
+  h1 {
+    font-size: clamp(1.35rem, 6vw, 2.1rem) !important;
+    margin-bottom: 8px !important;
+  }
+
+  .subtitle {
+    font-size: 0.88rem !important;
+    margin-bottom: 14px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  body {
+    padding: 8px !important;
+    align-items: flex-start !important;
+  }
+
+  .container {
+    padding: 12px !important;
+    max-width: 100% !important;
+  }
+
+  .games-grid,
+  .cards,
+  .stats,
+  .status-grid,
+  .bet-buttons,
+  .fast,
+  .g5,
+  .g4,
+  .g3 {
+    grid-template-columns: 1fr !important;
+  }
+
+  .reels {
+    gap: 8px !important;
+  }
+
+  .reel-container {
+    width: min(30vw, 92px) !important;
+    height: min(34vw, 110px) !important;
+  }
+
+  .reel-symbol {
+    min-height: min(34vw, 110px) !important;
+    height: min(34vw, 110px) !important;
+  }
+
+  .dice {
+    width: 56px !important;
+    height: 56px !important;
+    padding: 6px !important;
+  }
+
+  .wheel-container {
+    max-width: 88vw !important;
+  }
+
+  .wheel-center {
+    width: 74px !important;
+    height: 74px !important;
+    font-size: 2rem !important;
+  }
+
+  .wheel-pointer {
+    top: -28px !important;
+    border-left-width: 16px !important;
+    border-right-width: 16px !important;
+    border-top-width: 32px !important;
+  }
+
+  .card {
+    min-height: 44px !important;
+    font-size: 22px !important;
+  }
+
+  .card .sub,
+  .sub {
+    font-size: 14px !important;
+  }
+
+  .balance-amount,
+  .status-value,
+  .stat-value {
+    font-size: clamp(1.2rem, 6vw, 1.8rem) !important;
+  }
+
+  .game-card,
+  .status-card,
+  .stat-item,
+  .zone,
+  .head,
+  .box {
+    border-radius: 12px !important;
+  }
+
+  .bar {
+    position: sticky !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    transform: none !important;
+    left: auto !important;
+  }
+
+  .hud {
+    position: sticky !important;
+    top: 0 !important;
+    left: auto !important;
+    right: auto !important;
+    width: 100% !important;
+    margin-bottom: 8px !important;
+  }
+}

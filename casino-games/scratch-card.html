@@ -1,0 +1,429 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="mobile-unified.css">
+    <title>🎫 刮刮乐 - 选卡</title>
+    <style>
+        :root {
+            --bg-a: #11263f;
+            --bg-b: #26113f;
+            --panel: rgba(13, 24, 41, 0.9);
+            --line: rgba(255, 215, 120, 0.4);
+            --gold: #ffdf8b;
+            --text: #f7f4ee;
+            --muted: #b9c6d8;
+            --ok: #3ac78a;
+            --warn: #ff7b7b;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            min-height: 100vh;
+            font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at 20% 10%, rgba(255, 199, 95, 0.22), transparent 45%),
+                radial-gradient(circle at 80% 90%, rgba(112, 76, 255, 0.25), transparent 40%),
+                linear-gradient(140deg, var(--bg-a), var(--bg-b));
+            padding: 28px 18px 36px;
+        }
+
+        .container {
+            max-width: 1080px;
+            margin: 0 auto;
+            background: linear-gradient(160deg, rgba(9, 18, 35, 0.9), rgba(20, 11, 34, 0.9));
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+            padding: 26px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: "";
+            position: absolute;
+            width: 220%;
+            height: 120px;
+            top: -90px;
+            left: -60%;
+            background: linear-gradient(90deg, transparent, rgba(255, 223, 139, 0.23), transparent);
+            transform: rotate(-8deg);
+            animation: shine 4.6s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes shine {
+            from { transform: translateX(-30%) rotate(-8deg); }
+            to { transform: translateX(30%) rotate(-8deg); }
+        }
+
+        .top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .back {
+            color: var(--text);
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 8px 14px;
+            font-weight: 600;
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+
+        .back:hover {
+            background: rgba(255, 255, 255, 0.18);
+            transform: translateX(-2px);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: clamp(26px, 4vw, 36px);
+            color: var(--gold);
+            margin-bottom: 6px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--muted);
+            margin-bottom: 20px;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: 2fr repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .status-card {
+            background: var(--panel);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 14px;
+            padding: 14px;
+            text-align: center;
+        }
+
+        .status-card.balance {
+            text-align: left;
+            padding: 16px;
+            border-color: rgba(255, 223, 139, 0.45);
+            background: linear-gradient(125deg, rgba(255, 223, 139, 0.16), rgba(16, 23, 37, 0.9));
+        }
+
+        .status-label { color: var(--muted); font-size: 13px; margin-bottom: 6px; }
+        .status-value { font-weight: 700; font-size: clamp(20px, 2.2vw, 30px); }
+        .status-value.gold { color: var(--gold); }
+
+        .resume-panel {
+            display: none;
+            border: 1px solid rgba(58, 199, 138, 0.45);
+            background: rgba(8, 50, 40, 0.5);
+            border-radius: 14px;
+            padding: 14px;
+            margin-bottom: 18px;
+            gap: 12px;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .resume-panel.show { display: flex; }
+
+        .resume-title { color: #8af1c7; font-weight: 700; margin-bottom: 2px; }
+        .resume-detail { color: #d4e8de; font-size: 14px; }
+
+        .resume-btn {
+            border: none;
+            border-radius: 10px;
+            padding: 10px 16px;
+            font-weight: 700;
+            cursor: pointer;
+            color: #032517;
+            background: linear-gradient(140deg, #6cf0c0, #39ca96);
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 16px;
+        }
+
+        .card {
+            position: relative;
+            border-radius: 16px;
+            padding: 18px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(15, 27, 46, 0.84);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 18px 32px rgba(0, 0, 0, 0.45);
+        }
+
+        .card::before {
+            content: "";
+            position: absolute;
+            inset: -120% -10% auto -10%;
+            height: 200%;
+            background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.18), transparent);
+            transform: rotate(12deg);
+            animation: cardShine 3.4s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes cardShine {
+            from { transform: translateX(-70%) rotate(12deg); }
+            to { transform: translateX(70%) rotate(12deg); }
+        }
+
+        .card.bronze { border-color: rgba(205, 127, 50, 0.65); }
+        .card.silver { border-color: rgba(206, 216, 230, 0.7); }
+        .card.gold { border-color: rgba(255, 223, 139, 0.8); }
+        .card.diamond { border-color: rgba(123, 217, 255, 0.85); }
+
+        .card-title { font-size: 22px; font-weight: 800; margin-bottom: 8px; }
+        .card-price { font-size: 28px; font-weight: 800; margin-bottom: 10px; color: var(--gold); }
+        .card-desc { color: var(--muted); min-height: 42px; margin-bottom: 12px; }
+
+        .card-meta {
+            display: flex;
+            justify-content: space-between;
+            color: #d7e6fa;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .buy-btn {
+            width: 100%;
+            border: none;
+            border-radius: 12px;
+            padding: 11px 14px;
+            font-size: 16px;
+            font-weight: 800;
+            color: #101010;
+            cursor: pointer;
+            background: linear-gradient(140deg, #ffd966, #ffa45d);
+            transition: transform 0.15s ease;
+        }
+
+        .buy-btn:hover { transform: translateY(-2px); }
+        .buy-btn:active { transform: translateY(0); }
+
+        details.odds {
+            margin-top: 20px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(8, 16, 30, 0.7);
+            padding: 14px;
+        }
+
+        details.odds summary {
+            cursor: pointer;
+            color: var(--gold);
+            font-weight: 700;
+            outline: none;
+        }
+
+        .odds-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .odds-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 10px;
+            font-size: 13px;
+            line-height: 1.45;
+            color: #d9e6f6;
+        }
+
+        .odds-card h4 {
+            margin-bottom: 6px;
+            color: #ffebbb;
+        }
+
+        .odds-card ul { list-style: none; }
+        .odds-card li { margin-bottom: 3px; }
+
+        @media (max-width: 860px) {
+            .status-grid { grid-template-columns: 1fr; }
+            .status-card.balance { text-align: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="top-row">
+            <a class="back" href="index.html">← 返回大厅</a>
+            <span style="color:#9bb1cb;font-size:13px;">教育演示：长期期望值为负</span>
+        </div>
+
+        <h1>🎫 刮刮乐</h1>
+        <p class="subtitle">先买票，再刮开；每张票只结算一次，结果可追溯</p>
+
+        <div class="status-grid">
+            <div class="status-card balance">
+                <div class="status-label">账户余额</div>
+                <div class="status-value gold" id="balance">¥0</div>
+            </div>
+            <div class="status-card">
+                <div class="status-label">累计购卡</div>
+                <div class="status-value" id="totalCards">0</div>
+            </div>
+            <div class="status-card">
+                <div class="status-label">累计中奖</div>
+                <div class="status-value" id="totalWon">¥0</div>
+            </div>
+            <div class="status-card">
+                <div class="status-label">累计RTP</div>
+                <div class="status-value" id="overallRtp">--</div>
+            </div>
+        </div>
+
+        <div class="resume-panel" id="resumePanel">
+            <div>
+                <div class="resume-title">你有一张未结算的票</div>
+                <div class="resume-detail" id="resumeDetail"></div>
+            </div>
+            <button class="resume-btn" id="resumeBtn">继续刮这张</button>
+        </div>
+
+        <div class="cards" id="cards"></div>
+
+        <details class="odds">
+            <summary>查看概率与RTP说明（默认折叠）</summary>
+            <div class="odds-grid" id="oddsGrid"></div>
+        </details>
+    </div>
+
+    <script src="global-balance.js"></script>
+    <script src="scratch-v2-storage.js"></script>
+    <script>
+        ScratchV2.ensureInitialized();
+
+        const currency = new Intl.NumberFormat("zh-CN", { style: "currency", currency: "CNY", maximumFractionDigits: 0 });
+        const cardsEl = document.getElementById("cards");
+        const oddsGridEl = document.getElementById("oddsGrid");
+
+        function formatMoney(value) {
+            return currency.format(value).replace("CN¥", "¥");
+        }
+
+        function updateTopStats() {
+            document.getElementById("balance").textContent = formatMoney(window.globalBalance.getBalance());
+            const stats = ScratchV2.getStats();
+            document.getElementById("totalCards").textContent = String(stats.totalCards || 0);
+            document.getElementById("totalWon").textContent = formatMoney(stats.totalWon || 0);
+            const rtp = stats.totalSpent > 0 ? ((stats.totalWon / stats.totalSpent) * 100).toFixed(2) + "%" : "--";
+            document.getElementById("overallRtp").textContent = rtp;
+        }
+
+        function renderCards() {
+            const configs = ScratchV2.getCardConfigs();
+            cardsEl.innerHTML = configs.map((cfg) => {
+                const winRate = cfg.distribution.filter((d) => d.payout > 0).reduce((sum, item) => sum + item.probability, 0);
+                return `
+                    <section class="card ${cfg.type}">
+                        <div class="card-title">${cfg.title}</div>
+                        <div class="card-price">${formatMoney(cfg.price)}</div>
+                        <div class="card-desc">${cfg.description}</div>
+                        <div class="card-meta">
+                            <span>理论RTP: ${cfg.theoreticalRtp.toFixed(2)}%</span>
+                            <span>中奖率: ${(winRate * 100).toFixed(3)}%</span>
+                        </div>
+                        <div class="card-meta">
+                            <span>头奖: ${formatMoney(cfg.maxPrize)}</span>
+                            <span>头奖概率: ${ScratchV2.formatPercent(cfg.jackpotProbability)}</span>
+                        </div>
+                        <button class="buy-btn" data-type="${cfg.type}">购买并开始刮</button>
+                    </section>
+                `;
+            }).join("");
+
+            cardsEl.querySelectorAll(".buy-btn").forEach((btn) => {
+                btn.addEventListener("click", () => buyCard(btn.dataset.type));
+            });
+        }
+
+        function renderOdds() {
+            const configs = ScratchV2.getCardConfigs();
+            oddsGridEl.innerHTML = configs.map((cfg) => {
+                const lines = cfg.distribution.map((tier) => {
+                    const label = tier.payout > 0 ? `中奖 ${formatMoney(tier.payout)}` : "未中奖";
+                    return `<li>${label}: ${ScratchV2.formatPercent(tier.probability)}</li>`;
+                }).join("");
+
+                return `
+                    <article class="odds-card">
+                        <h4>${cfg.title}（票价 ${formatMoney(cfg.price)}）</h4>
+                        <div>理论RTP: ${cfg.theoreticalRtp.toFixed(2)}%</div>
+                        <ul>${lines}</ul>
+                    </article>
+                `;
+            }).join("");
+        }
+
+        function syncResumePanel() {
+            const panel = document.getElementById("resumePanel");
+            const detail = document.getElementById("resumeDetail");
+            const resumeBtn = document.getElementById("resumeBtn");
+            const active = ScratchV2.getActiveTicket();
+
+            if (!active || active.status === "settled") {
+                panel.classList.remove("show");
+                return;
+            }
+
+            detail.textContent = `票号 ${active.id.slice(0, 8)}... | ${active.type.toUpperCase()} | 状态: ${active.status}`;
+            resumeBtn.onclick = () => {
+                location.href = `scratch-play.html?ticket=${encodeURIComponent(active.id)}`;
+            };
+            panel.classList.add("show");
+        }
+
+        function buyCard(type) {
+            const active = ScratchV2.getActiveTicket();
+            if (active && active.status !== "settled") {
+                alert("你有未结算票据，先完成当前票据。\n系统将直接跳转继续。\n(防止重复扣费和状态混乱)");
+                location.href = `scratch-play.html?ticket=${encodeURIComponent(active.id)}`;
+                return;
+            }
+
+            const result = ScratchV2.createTicket(type);
+            if (!result.ok) {
+                alert(result.message || "购卡失败");
+                return;
+            }
+
+            location.href = `scratch-play.html?ticket=${encodeURIComponent(result.ticket.id)}`;
+        }
+
+        updateTopStats();
+        renderCards();
+        renderOdds();
+        syncResumePanel();
+
+        window.addEventListener("balanceChanged", updateTopStats);
+    </script>
+</body>
+</html>
+
+
+
