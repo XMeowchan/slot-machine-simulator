@@ -1,0 +1,13 @@
+﻿exclude:
+  - .vs/
+  - tmp_*.txt
+  - tmp_test.txt
+  - BOOTSTRAP.md
+  - SOUL.md
+  - USER.md
+  - TOOLS.md
+  - HEARTBEAT.md
+  - AGENTS.md
+  - IDENTITY.md
+  - memory/
+  - scripts/
