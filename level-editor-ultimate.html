@@ -8,10 +8,10 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(180deg, #87ceeb 0%, #e0f6ff 100%);
             min-height: 100vh;
             padding: 20px;
-            color: #fff;
+            color: #5d4037;
         }
         .container { 
             max-width: 100%; 
@@ -26,87 +26,79 @@
             margin-bottom: 20px; 
             font-size: 32px;
             font-weight: 700;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            text-shadow: 2px 2px 0 rgba(255,255,255,0.5), 3px 3px 0 rgba(0,0,0,0.1);
             letter-spacing: -0.5px;
+            color: #558b2f;
         }
         .toolbar {
             background: rgba(255, 255, 255, 0.95);
             padding: 20px;
-            border-radius: 16px;
+            border-radius: 12px;
             margin-bottom: 20px;
             display: flex;
             gap: 12px;
             flex-wrap: wrap;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 0 rgba(139, 111, 71, 0.3), 0 8px 32px rgba(0,0,0,0.15);
+            border: 3px solid #8b6f47;
         }
         .tool-group {
             display: flex;
             gap: 8px;
             padding: 8px;
-            background: rgba(0,0,0,0.05);
-            border-radius: 12px;
+            background: rgba(139, 195, 74, 0.1);
+            border-radius: 8px;
+            border: 2px solid #aed581;
         }
         button {
             padding: 10px 18px;
             border: none;
-            border-radius: 8px;
+            border-radius: 6px;
             cursor: pointer;
             font-size: 14px;
             font-weight: 600;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 3px 0 rgba(0,0,0,0.2), 0 2px 8px rgba(0,0,0,0.1);
+            position: relative;
+            top: 0;
         }
         button:hover { 
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            top: -2px;
+            box-shadow: 0 5px 0 rgba(0,0,0,0.2), 0 4px 12px rgba(0,0,0,0.15);
         }
         button:active { 
-            transform: translateY(0);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            top: 2px;
+            box-shadow: 0 1px 0 rgba(0,0,0,0.2), 0 1px 4px rgba(0,0,0,0.1);
         }
         .tool { 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(180deg, #8bc34a 0%, #689f38 100%);
             color: white;
-            position: relative;
-            overflow: hidden;
-        }
-        .tool::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.3);
-            transform: translate(-50%, -50%);
-            transition: width 0.3s, height 0.3s;
-        }
-        .tool:hover::before {
-            width: 200px;
-            height: 200px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            border: 2px solid #558b2f;
         }
         .tool.active { 
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            box-shadow: 0 4px 16px rgba(245, 87, 108, 0.4);
+            background: linear-gradient(180deg, #ffeb3b 0%, #fbc02d 100%);
+            color: #5d4037;
+            border: 2px solid #f57f17;
+            box-shadow: 0 3px 0 rgba(245, 127, 23, 0.5), 0 2px 8px rgba(255, 235, 59, 0.4);
         }
         .action { 
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            background: linear-gradient(180deg, #66bb6a 0%, #43a047 100%);
             color: white;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            border: 2px solid #2e7d32;
         }
         .action:hover {
-            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            background: linear-gradient(180deg, #81c784 0%, #66bb6a 100%);
         }
         #canvas {
             display: block;
             background: linear-gradient(180deg, #87ceeb 0%, #b0d4f1 100%);
-            border-radius: 16px;
+            border-radius: 8px;
             cursor: crosshair;
-            box-shadow: 0 12px 48px rgba(0,0,0,0.3);
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.1), 0 4px 0 rgba(139, 111, 71, 0.3);
             max-width: 100%;
             height: auto;
-            border: 4px solid rgba(255,255,255,0.3);
+            border: 4px solid #8b6f47;
         }
         .canvas-wrapper {
             background: rgba(255,255,255,0.95);
@@ -119,22 +111,24 @@
             display: flex;
             justify-content: space-between;
             font-size: 14px;
-            color: #333;
+            color: #558b2f;
             font-weight: 500;
             padding: 12px 16px;
-            background: rgba(0,0,0,0.05);
+            background: rgba(139, 195, 74, 0.1);
             border-radius: 8px;
+            border: 2px solid #aed581;
         }
         .timer {
             font-size: 24px;
             font-weight: 700;
-            color: #667eea;
+            color: #f57f17;
+            text-shadow: 1px 1px 0 rgba(255,255,255,0.5);
         }
         .spacer {
             flex: 1;
         }
         .props-panel {
-            background: rgba(0,0,0,0.05);
+            background: rgba(139, 195, 74, 0.1);
             padding: 12px;
             border-radius: 8px;
             margin-bottom: 15px;
@@ -142,17 +136,19 @@
             gap: 12px;
             flex-wrap: wrap;
             align-items: center;
+            border: 2px solid #aed581;
         }
         .props-panel label {
-            color: #333;
+            color: #558b2f;
             font-weight: 600;
             font-size: 13px;
         }
         .props-panel input {
             padding: 4px 8px;
-            border: 2px solid #ddd;
+            border: 2px solid #8bc34a;
             border-radius: 4px;
             font-size: 13px;
+            background: white;
         }
         #helpPanel {
             position: fixed;
@@ -168,6 +164,45 @@
             color: #333;
         }
         #helpPanel.show { display: block; }
+        #configPanel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            display: none;
+            z-index: 1000;
+            color: #333;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        #configPanel.show { display: block; }
+        .config-item {
+            margin-bottom: 15px;
+        }
+        .config-item label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #558b2f;
+        }
+        .config-item input {
+            width: 100%;
+            padding: 8px;
+            border: 2px solid #8bc34a;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .config-item small {
+            display: block;
+            margin-top: 3px;
+            color: #666;
+            font-size: 12px;
+        }
         .shortcut { 
             display: flex; 
             justify-content: space-between; 
@@ -194,7 +229,7 @@
                 <button class="tool" data-tool="bounce">🔵 弹跳板</button>
                 <button class="tool" data-tool="enemy">👾 敌人</button>
                 <button class="tool" data-tool="spike">🔺 尖刺</button>
-                <button class="tool" data-tool="coin">🪙 金币</button>
+                <button class="tool" data-tool="coin">💰 金币</button>
                 <button class="tool" data-tool="spawn">🟢 出生</button>
                 <button class="tool" data-tool="goal">⭐ 终点</button>
                 <button class="tool" data-tool="erase">🧹 擦除</button>
@@ -208,6 +243,7 @@
             <button class="action" id="clearBtn">🗑️ 清空</button>
             <button class="action" id="saveBtn">💾 保存</button>
             <button class="action" id="loadBtn">📂 加载</button>
+            <button class="action" id="configBtn">⚙️ 配置</button>
         </div>
         <div class="canvas-wrapper">
             <div class="props-panel">
@@ -245,6 +281,50 @@
         </div>
     </div>
 
+    <div id="configPanel">
+        <h3 style="margin-bottom: 15px; color: #558b2f;">⚙️ 物理参数配置</h3>
+        <div class="config-item">
+            <label>移动速度</label>
+            <input type="number" id="cfgMoveSpeed" step="0.5" value="5">
+            <small>玩家左右移动的最大速度</small>
+        </div>
+        <div class="config-item">
+            <label>跳跃力度</label>
+            <input type="number" id="cfgJumpSpeed" step="0.5" value="11">
+            <small>跳跃的初始向上速度（正数）</small>
+        </div>
+        <div class="config-item">
+            <label>重力</label>
+            <input type="number" id="cfgGravity" step="0.05" value="0.5">
+            <small>下落加速度</small>
+        </div>
+        <div class="config-item">
+            <label>最大下落速度</label>
+            <input type="number" id="cfgMaxFall" step="0.5" value="10">
+            <small>下落的最大速度</small>
+        </div>
+        <div class="config-item">
+            <label>按住跳跃重力</label>
+            <input type="number" id="cfgJumpHoldGravity" step="0.05" value="0.25">
+            <small>按住跳跃键时的重力（更低 = 跳更高）</small>
+        </div>
+        <div class="config-item">
+            <label>松开跳跃重力</label>
+            <input type="number" id="cfgJumpReleaseGravity" step="0.05" value="0.7">
+            <small>松开跳跃键时的重力（更高 = 快速下落）</small>
+        </div>
+        <div class="config-item">
+            <label>土狼时间（帧）</label>
+            <input type="number" id="cfgCoyoteTime" step="1" value="6">
+            <small>离开平台后仍可跳跃的帧数</small>
+        </div>
+        <div style="margin-top: 20px; text-align: center; display: flex; gap: 10px;">
+            <button class="action" onclick="applyConfig()">应用</button>
+            <button class="action" onclick="resetConfig()">重置默认</button>
+            <button class="action" onclick="document.getElementById('configPanel').classList.remove('show')">关闭</button>
+        </div>
+    </div>
+
     <script>
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
@@ -255,6 +335,22 @@
         let drawing = false, lastX = -1, lastY = -1;
         let startTime = 0, elapsedTime = 0, time = 0;
         const keys = {};
+        
+        // ===== Celeste 风格物理参数 =====
+        const PHYSICS = {
+            moveSpeed: 5,
+            maxFallSpeed: 10,
+            gravity: 0.5,
+            jumpSpeed: -11,  // 降低跳跃高度
+            jumpHoldGravity: 0.25,
+            jumpReleaseGravity: 0.7,
+            coyoteTime: 6,
+            jumpBufferTime: 6,
+            airAccel: 0.8,
+            groundAccel: 1.0,
+            friction: 0.7,
+            airFriction: 0.95
+        };
         
         // ===== 撤销/重做系统 =====
         let history = [], historyIndex = -1, clipboard = null;
@@ -333,6 +429,8 @@
         
         // ===== 粒子系统 =====
         let particles = [];
+        let playerTrail = [];
+        
         class Particle {
             constructor(x, y, vx, vy, color, life, size = 3) {
                 this.x = x; this.y = y; this.vx = vx; this.vy = vy;
@@ -424,6 +522,48 @@
             document.getElementById('helpPanel').classList.toggle('show');
         };
         
+        // 配置面板
+        document.getElementById('configBtn').onclick = () => {
+            // 加载当前值
+            document.getElementById('cfgMoveSpeed').value = PHYSICS.moveSpeed;
+            document.getElementById('cfgJumpSpeed').value = Math.abs(PHYSICS.jumpSpeed);
+            document.getElementById('cfgGravity').value = PHYSICS.gravity;
+            document.getElementById('cfgMaxFall').value = PHYSICS.maxFallSpeed;
+            document.getElementById('cfgJumpHoldGravity').value = PHYSICS.jumpHoldGravity;
+            document.getElementById('cfgJumpReleaseGravity').value = PHYSICS.jumpReleaseGravity;
+            document.getElementById('cfgCoyoteTime').value = PHYSICS.coyoteTime;
+            document.getElementById('configPanel').classList.toggle('show');
+        };
+        
+        function applyConfig() {
+            PHYSICS.moveSpeed = parseFloat(document.getElementById('cfgMoveSpeed').value);
+            PHYSICS.jumpSpeed = -Math.abs(parseFloat(document.getElementById('cfgJumpSpeed').value));
+            PHYSICS.gravity = parseFloat(document.getElementById('cfgGravity').value);
+            PHYSICS.maxFallSpeed = parseFloat(document.getElementById('cfgMaxFall').value);
+            PHYSICS.jumpHoldGravity = parseFloat(document.getElementById('cfgJumpHoldGravity').value);
+            PHYSICS.jumpReleaseGravity = parseFloat(document.getElementById('cfgJumpReleaseGravity').value);
+            PHYSICS.coyoteTime = parseInt(document.getElementById('cfgCoyoteTime').value);
+            document.getElementById('configPanel').classList.remove('show');
+            alert('配置已应用！');
+        }
+        
+        function resetConfig() {
+            PHYSICS.moveSpeed = 5;
+            PHYSICS.jumpSpeed = -11;
+            PHYSICS.gravity = 0.5;
+            PHYSICS.maxFallSpeed = 10;
+            PHYSICS.jumpHoldGravity = 0.25;
+            PHYSICS.jumpReleaseGravity = 0.7;
+            PHYSICS.coyoteTime = 6;
+            PHYSICS.jumpBufferTime = 6;
+            PHYSICS.airAccel = 0.8;
+            PHYSICS.groundAccel = 1.0;
+            PHYSICS.friction = 0.7;
+            PHYSICS.airFriction = 0.95;
+            document.getElementById('configPanel').classList.remove('show');
+            alert('已重置为默认值！');
+        }
+        
         // 画布交互
         canvas.onmousedown = e => { 
             if (e.button === 2) { // 右键
@@ -503,14 +643,71 @@
                 }
             }
             
+            // 辅助函数：检查某位置是否有平台
+            function hasPlatform(x, y) {
+                return objects.some(obj => 
+                    (obj.type === 'platform' || obj.type === 'moving') && 
+                    obj.x === x && obj.y === y
+                );
+            }
+            
             objects.forEach(o => {
                 switch(o.type) {
                     case 'platform':
-                        ctx.fillStyle = '#8b4513';
+                        // TileMap 自动识别
+                        const hasTop = hasPlatform(o.x, o.y - GRID);
+                        const hasBottom = hasPlatform(o.x, o.y + GRID);
+                        const hasLeft = hasPlatform(o.x - GRID, o.y);
+                        const hasRight = hasPlatform(o.x + GRID, o.y);
+                        
+                        // 土壤层（棕色）
+                        ctx.fillStyle = '#8b6f47';
                         ctx.fillRect(o.x, o.y, GRID, GRID);
+                        
+                        // 草地顶部（只在没有上方平台时显示）
+                        if (!hasTop) {
+                            // 草地
+                            ctx.fillStyle = '#7cb342';
+                            ctx.fillRect(o.x, o.y, GRID, 8);
+                            
+                            // 草叶装饰
+                            ctx.fillStyle = '#558b2f';
+                            for (let i = 0; i < 3; i++) {
+                                const gx = o.x + 8 + i * 8;
+                                ctx.fillRect(gx, o.y + 2, 2, 4);
+                                ctx.fillRect(gx + 1, o.y, 2, 2);
+                            }
+                        }
+                        
+                        // 土壤纹理
+                        ctx.fillStyle = 'rgba(101, 67, 33, 0.3)';
+                        for (let i = 0; i < 4; i++) {
+                            const px = o.x + Math.random() * GRID;
+                            const py = o.y + 8 + Math.random() * (GRID - 8);
+                            ctx.fillRect(px, py, 2, 2);
+                        }
+                        
+                        // 边框（根据相邻平台决定）
                         ctx.strokeStyle = '#654321';
                         ctx.lineWidth = 2;
-                        ctx.strokeRect(o.x, o.y, GRID, GRID);
+                        ctx.beginPath();
+                        if (!hasLeft) {
+                            ctx.moveTo(o.x, o.y);
+                            ctx.lineTo(o.x, o.y + GRID);
+                        }
+                        if (!hasRight) {
+                            ctx.moveTo(o.x + GRID, o.y);
+                            ctx.lineTo(o.x + GRID, o.y + GRID);
+                        }
+                        if (!hasTop) {
+                            ctx.moveTo(o.x, o.y);
+                            ctx.lineTo(o.x + GRID, o.y);
+                        }
+                        if (!hasBottom) {
+                            ctx.moveTo(o.x, o.y + GRID);
+                            ctx.lineTo(o.x + GRID, o.y + GRID);
+                        }
+                        ctx.stroke();
                         break;
                     
                     case 'moving':
@@ -519,13 +716,32 @@
                             if (o.offset >= o.range || o.offset <= 0) o.speed *= -1;
                             o.x = o.startX + o.offset;
                         }
-                        ctx.fillStyle = '#ff8c00';
+                        // 木质移动平台
+                        ctx.fillStyle = '#d4a574';
                         ctx.fillRect(o.x, o.y, GRID, GRID);
-                        ctx.strokeStyle = '#ff6600';
+                        // 木纹
+                        ctx.strokeStyle = '#a67c52';
+                        ctx.lineWidth = 2;
+                        for (let i = 0; i < 3; i++) {
+                            ctx.beginPath();
+                            ctx.moveTo(o.x, o.y + 8 + i * 8);
+                            ctx.lineTo(o.x + GRID, o.y + 8 + i * 8);
+                            ctx.stroke();
+                        }
+                        // 边框
+                        ctx.strokeStyle = '#8b6f47';
                         ctx.lineWidth = 3;
                         ctx.strokeRect(o.x, o.y, GRID, GRID);
+                        // 箭头指示
+                        ctx.fillStyle = '#8b6f47';
+                        const dir = o.speed > 0 ? 1 : -1;
+                        ctx.beginPath();
+                        ctx.moveTo(o.x + GRID/2 + dir * 6, o.y + GRID/2);
+                        ctx.lineTo(o.x + GRID/2 - dir * 2, o.y + GRID/2 - 4);
+                        ctx.lineTo(o.x + GRID/2 - dir * 2, o.y + GRID/2 + 4);
+                        ctx.fill();
                         if (mode === 'edit') {
-                            ctx.strokeStyle = '#ffaa00';
+                            ctx.strokeStyle = '#d4a574';
                             ctx.setLineDash([5, 5]);
                             ctx.strokeRect(o.startX, o.y, o.range, GRID);
                             ctx.setLineDash([]);
@@ -533,12 +749,24 @@
                         break;
                     
                     case 'bounce':
-                        ctx.fillStyle = '#00bfff';
-                        ctx.fillRect(o.x, o.y, GRID, GRID);
-                        ctx.fillStyle = '#fff';
-                        ctx.font = 'bold 20px Arial';
-                        ctx.textAlign = 'center';
-                        ctx.fillText('↑', o.x + GRID/2, o.y + GRID/2 + 7);
+                        // 弹簧底座
+                        ctx.fillStyle = '#8b6f47';
+                        ctx.fillRect(o.x + 4, o.y + GRID - 8, GRID - 8, 8);
+                        // 弹簧
+                        ctx.strokeStyle = '#546e7a';
+                        ctx.lineWidth = 3;
+                        ctx.beginPath();
+                        for (let i = 0; i < 5; i++) {
+                            const yPos = o.y + GRID - 12 - i * 4;
+                            ctx.lineTo(o.x + (i % 2 === 0 ? 8 : GRID - 8), yPos);
+                        }
+                        ctx.stroke();
+                        // 顶部平台
+                        ctx.fillStyle = '#78909c';
+                        ctx.fillRect(o.x + 6, o.y + 4, GRID - 12, 6);
+                        ctx.strokeStyle = '#546e7a';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(o.x + 6, o.y + 4, GRID - 12, 6);
                         break;
                     
                     case 'enemy':
@@ -548,13 +776,30 @@
                             if (o.offset <= 0) { o.offset = 0; o.dir = 1; }
                             o.x = o.startX + o.offset;
                         }
-                        ctx.fillStyle = '#ff1493';
-                        ctx.fillRect(o.x + 4, o.y, GRID - 8, GRID);
+                        // 史莱姆身体
+                        ctx.fillStyle = '#e91e63';
+                        ctx.beginPath();
+                        ctx.ellipse(o.x + GRID/2, o.y + GRID/2 + 4, GRID/2 - 4, GRID/2 - 2, 0, 0, Math.PI * 2);
+                        ctx.fill();
+                        // 高光
+                        ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+                        ctx.beginPath();
+                        ctx.ellipse(o.x + GRID/2 - 4, o.y + GRID/2, 6, 8, 0, 0, Math.PI * 2);
+                        ctx.fill();
+                        // 眼睛
                         ctx.fillStyle = '#fff';
-                        ctx.fillRect(o.x + 8, o.y + 8, 6, 6);
-                        ctx.fillRect(o.x + GRID - 14, o.y + 8, 6, 6);
+                        ctx.fillRect(o.x + 8, o.y + GRID/2 - 2, 6, 8);
+                        ctx.fillRect(o.x + GRID - 14, o.y + GRID/2 - 2, 6, 8);
+                        ctx.fillStyle = '#000';
+                        ctx.fillRect(o.x + 10, o.y + GRID/2 + 1, 3, 4);
+                        ctx.fillRect(o.x + GRID - 12, o.y + GRID/2 + 1, 3, 4);
+                        // 底部阴影
+                        ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+                        ctx.beginPath();
+                        ctx.ellipse(o.x + GRID/2, o.y + GRID - 2, GRID/2 - 6, 3, 0, 0, Math.PI * 2);
+                        ctx.fill();
                         if (mode === 'edit') {
-                            ctx.strokeStyle = '#ff69b4';
+                            ctx.strokeStyle = '#f48fb1';
                             ctx.setLineDash([5, 5]);
                             ctx.strokeRect(o.startX, o.y, o.range, GRID);
                             ctx.setLineDash([]);
@@ -562,11 +807,22 @@
                         break;
                     
                     case 'spike':
-                        ctx.fillStyle = '#ff0000';
+                        // 尖刺底座
+                        ctx.fillStyle = '#616161';
+                        ctx.fillRect(o.x, o.y + GRID - 4, GRID, 4);
+                        // 尖刺
+                        ctx.fillStyle = '#424242';
                         ctx.beginPath();
                         ctx.moveTo(o.x, o.y + GRID);
-                        ctx.lineTo(o.x + GRID/2, o.y);
+                        ctx.lineTo(o.x + GRID/2, o.y + 4);
                         ctx.lineTo(o.x + GRID, o.y + GRID);
+                        ctx.fill();
+                        // 高光
+                        ctx.fillStyle = '#757575';
+                        ctx.beginPath();
+                        ctx.moveTo(o.x + GRID/2, o.y + 4);
+                        ctx.lineTo(o.x + GRID/2 - 4, o.y + GRID/2);
+                        ctx.lineTo(o.x + GRID/2, o.y + GRID/2 + 4);
                         ctx.fill();
                         break;
                     
@@ -587,27 +843,53 @@
                         break;
                     
                     case 'spawn':
-                        ctx.fillStyle = '#00ff00';
-                        ctx.fillRect(o.x + 4, o.y, GRID - 8, GRID);
+                        // 旗帜杆
+                        ctx.fillStyle = '#8b6f47';
+                        ctx.fillRect(o.x + GRID/2 - 2, o.y, 4, GRID);
+                        // 旗帜
+                        ctx.fillStyle = '#66bb6a';
+                        ctx.beginPath();
+                        ctx.moveTo(o.x + GRID/2 + 2, o.y + 4);
+                        ctx.lineTo(o.x + GRID - 4, o.y + 10);
+                        ctx.lineTo(o.x + GRID/2 + 2, o.y + 16);
+                        ctx.fill();
+                        // 旗帜边框
+                        ctx.strokeStyle = '#43a047';
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        ctx.moveTo(o.x + GRID/2 + 2, o.y + 4);
+                        ctx.lineTo(o.x + GRID - 4, o.y + 10);
+                        ctx.lineTo(o.x + GRID/2 + 2, o.y + 16);
+                        ctx.stroke();
+                        // 底座
+                        ctx.fillStyle = '#8b6f47';
+                        ctx.fillRect(o.x + 4, o.y + GRID - 6, GRID - 8, 6);
                         break;
                     
                     case 'goal':
-                        ctx.save();
-                        ctx.translate(o.x + GRID/2, o.y + GRID/2);
-                        if (mode === 'test') ctx.rotate(time * 0.05);
-                        ctx.fillStyle = '#ffff00';
-                        ctx.beginPath();
-                        for (let i = 0; i < 5; i++) {
-                            const angle = (i * 4 * Math.PI / 5) - Math.PI / 2;
-                            const r = i % 2 === 0 ? GRID/2 : GRID/4;
-                            const px = Math.cos(angle) * r;
-                            const py = Math.sin(angle) * r;
-                            if (i === 0) ctx.moveTo(px, py);
-                            else ctx.lineTo(px, py);
+                        // 宝箱底部
+                        ctx.fillStyle = '#8b6f47';
+                        ctx.fillRect(o.x + 4, o.y + GRID/2, GRID - 8, GRID/2);
+                        // 宝箱盖子
+                        ctx.fillStyle = '#a67c52';
+                        ctx.fillRect(o.x + 4, o.y + GRID/2 - 8, GRID - 8, 10);
+                        ctx.fillStyle = '#8b6f47';
+                        ctx.fillRect(o.x + 4, o.y + GRID/2 - 8, GRID - 8, 3);
+                        // 锁扣
+                        ctx.fillStyle = '#ffd700';
+                        ctx.fillRect(o.x + GRID/2 - 3, o.y + GRID/2 - 2, 6, 8);
+                        ctx.fillStyle = '#ffeb3b';
+                        ctx.fillRect(o.x + GRID/2 - 2, o.y + GRID/2, 4, 4);
+                        // 闪光效果
+                        if (mode === 'test') {
+                            const pulse = Math.sin(time * 0.2) * 0.4 + 0.6;
+                            ctx.globalAlpha = 0.3 * pulse;
+                            ctx.fillStyle = '#ffeb3b';
+                            ctx.beginPath();
+                            ctx.arc(o.x + GRID/2, o.y + GRID/2, GRID/2 + 4, 0, Math.PI * 2);
+                            ctx.fill();
+                            ctx.globalAlpha = 1;
                         }
-                        ctx.closePath();
-                        ctx.fill();
-                        ctx.restore();
                         break;
                 }
             });
@@ -616,23 +898,137 @@
             particles = particles.filter(p => p.life > 0);
             particles.forEach(p => { p.update(); p.draw(); });
             
+            // 玩家拖尾
+            if (mode === 'test' && player) {
+                // 添加拖尾点
+                if (time % 2 === 0) {
+                    playerTrail.push({
+                        x: player.x + 12,
+                        y: player.y + 16,
+                        life: 15
+                    });
+                }
+                
+                // 更新和绘制拖尾
+                playerTrail = playerTrail.filter(t => t.life > 0);
+                playerTrail.forEach(t => {
+                    t.life--;
+                    const alpha = t.life / 15;
+                    ctx.globalAlpha = alpha * 0.3;
+                    ctx.fillStyle = '#42a5f5';
+                    ctx.fillRect(t.x - 10, t.y - 14, 20, 28);
+                    ctx.globalAlpha = 1;
+                });
+            }
+            
             // 玩家
             if (mode === 'test' && player) {
                 let offsetY = 0, squash = 1, stretch = 1;
-                if (!player.ground && player.vy < 0) { stretch = 1.1; squash = 0.9; }
-                else if (!player.ground && player.vy > 5) { stretch = 0.9; squash = 1.1; }
-                else if (player.ground && player.vx !== 0) offsetY = Math.sin(time * 0.3) * 2;
+                
+                // Idle 动画计时器
+                if (player.ground && player.vx === 0 && !player.celebrating) {
+                    player.idleTimer++;
+                } else {
+                    player.idleTimer = 0;
+                }
+                
+                // 通关庆祝动画
+                if (player.celebrating) {
+                    offsetY = Math.sin(time * 0.3) * 8 - 4;
+                    squash = 1 + Math.sin(time * 0.4) * 0.1;
+                    stretch = 1 + Math.cos(time * 0.4) * 0.1;
+                }
+                // 跳跃动画
+                else if (!player.ground && player.vy < 0) { 
+                    stretch = 1.1; squash = 0.9; 
+                }
+                // 下落动画
+                else if (!player.ground && player.vy > 5) { 
+                    stretch = 0.9; squash = 1.1; 
+                }
+                // 跑步动画
+                else if (player.ground && player.vx !== 0) {
+                    offsetY = Math.sin(time * 0.3) * 2;
+                }
+                // Idle 动画（呼吸 + 偶尔眨眼）
+                else if (player.ground && player.vx === 0) {
+                    offsetY = Math.sin(time * 0.1) * 1;
+                    squash = 1 + Math.sin(time * 0.15) * 0.03;
+                    stretch = 1 - Math.sin(time * 0.15) * 0.03;
+                }
                 
                 ctx.save();
                 ctx.translate(player.x + 12, player.y + 16);
                 ctx.scale(squash, stretch);
                 ctx.translate(-12, -16);
-                ctx.fillStyle = player.ground ? '#0066ff' : '#00aaff';
+                
+                // 身体（蓝色小人）
+                ctx.fillStyle = '#42a5f5';
                 ctx.fillRect(0, offsetY, 24, 32);
+                
+                // 头部高光
+                ctx.fillStyle = '#64b5f6';
+                ctx.fillRect(2, offsetY + 2, 20, 10);
+                
+                // 眼睛（Idle 时偶尔眨眼）
+                const blinking = player.idleTimer > 0 && player.idleTimer % 120 > 115 && player.idleTimer % 120 < 120;
                 ctx.fillStyle = '#fff';
                 const eyeY = player.vy < 0 ? 6 : 8;
-                ctx.fillRect(6, offsetY + eyeY, 4, 4);
-                ctx.fillRect(14, offsetY + eyeY, 4, 4);
+                const eyeH = blinking ? 2 : 5;
+                ctx.fillRect(6, offsetY + eyeY, 5, eyeH);
+                ctx.fillRect(13, offsetY + eyeY, 5, eyeH);
+                if (!blinking) {
+                    ctx.fillStyle = '#000';
+                    ctx.fillRect(7, offsetY + eyeY + 1, 3, 3);
+                    ctx.fillRect(14, offsetY + eyeY + 1, 3, 3);
+                }
+                
+                // 嘴巴
+                if (player.celebrating) {
+                    // 通关时大笑
+                    ctx.fillStyle = '#000';
+                    ctx.beginPath();
+                    ctx.arc(12, offsetY + 20, 6, 0, Math.PI);
+                    ctx.fill();
+                } else if (player.vy < -5) {
+                    // 跳跃时开心
+                    ctx.fillStyle = '#000';
+                    ctx.fillRect(8, offsetY + 18, 8, 2);
+                }
+                
+                // 手臂
+                if (player.celebrating) {
+                    // 通关时举手欢呼
+                    const wave = Math.sin(time * 0.5) * 10;
+                    ctx.fillStyle = '#1976d2';
+                    ctx.fillRect(-2, offsetY + 4 + wave, 3, 10);
+                    ctx.fillRect(23, offsetY + 4 - wave, 3, 10);
+                } else if (player.ground && player.vx !== 0) {
+                    // 跑步时摆动
+                    const armSwing = Math.sin(time * 0.4) * 3;
+                    ctx.fillStyle = '#1976d2';
+                    ctx.fillRect(-2, offsetY + 12 + armSwing, 3, 8);
+                    ctx.fillRect(23, offsetY + 12 - armSwing, 3, 8);
+                }
+                
+                // 腿部
+                if (player.celebrating) {
+                    // 通关时跳跃姿势
+                    ctx.fillStyle = '#1976d2';
+                    ctx.fillRect(6, offsetY + 28, 5, 4);
+                    ctx.fillRect(13, offsetY + 28, 5, 4);
+                } else if (player.ground && player.vx !== 0) {
+                    // 跑步时摆动
+                    const legSwing = Math.sin(time * 0.4) * 2;
+                    ctx.fillStyle = '#1976d2';
+                    ctx.fillRect(6, offsetY + 26 + legSwing, 5, 6);
+                    ctx.fillRect(13, offsetY + 26 - legSwing, 5, 6);
+                } else {
+                    ctx.fillStyle = '#1976d2';
+                    ctx.fillRect(6, offsetY + 26, 5, 6);
+                    ctx.fillRect(13, offsetY + 26, 5, 6);
+                }
+                
                 ctx.restore();
             }
         }
@@ -642,9 +1038,21 @@
             const spawn = objects.find(o => o.type === 'spawn');
             if (!spawn) return alert('请先放置出生点');
             mode = 'test';
-            player = { x: spawn.x + 4, y: spawn.y, vx: 0, vy: 0, ground: false };
+            player = { 
+                x: spawn.x + 4, 
+                y: spawn.y, 
+                vx: 0, 
+                vy: 0, 
+                ground: false,
+                coyoteTimer: 0,
+                jumpBufferTimer: 0,
+                jumpHeld: false,
+                idleTimer: 0,
+                celebrating: false
+            };
             startTime = Date.now();
             elapsedTime = 0;
+            playerTrail = [];
             
             // 重置移动平台和敌人
             objects.forEach(o => {
@@ -666,6 +1074,8 @@
         document.getElementById('editBtn').onclick = () => {
             mode = 'edit';
             player = null;
+            particles = [];
+            playerTrail = [];
             document.getElementById('testBtn').style.display = 'inline-block';
             document.getElementById('editBtn').style.display = 'none';
             document.getElementById('mode').textContent = '✏️ 编辑模式';
@@ -721,16 +1131,22 @@
                 document.getElementById('helpBtn').click();
             }
             
+            // 跳跃输入（跳跃缓冲）
             if (mode === 'test' && [' ', 'ArrowUp', 'w', 'W'].includes(e.key)) {
                 e.preventDefault();
-                if (player.ground) {
-                    player.vy = -12;
-                    playSound('jump');
-                    createParticles(player.x, player.y, 8, 'jump');
+                if (!player.jumpHeld) {
+                    player.jumpBufferTimer = PHYSICS.jumpBufferTime;
+                    player.jumpHeld = true;
                 }
             }
         };
-        window.onkeyup = e => keys[e.key] = false;
+        window.onkeyup = e => {
+            keys[e.key] = false;
+            // 松开跳跃键
+            if (mode === 'test' && [' ', 'ArrowUp', 'w', 'W'].includes(e.key)) {
+                player.jumpHeld = false;
+            }
+        };
         
         // 碰撞检测
         function hit(a, b) {
@@ -759,10 +1175,52 @@
             const ms = Math.floor((elapsedTime % 1000) / 10);
             document.getElementById('timer').textContent = `⏱️ ${sec}.${ms.toString().padStart(2, '0')}s`;
             
-            // 玩家移动
-            player.vx = (keys.ArrowLeft || keys.a || keys.A) ? -5 : (keys.ArrowRight || keys.d || keys.D) ? 5 : 0;
-            player.vy = Math.min(player.vy + 0.6, 15);
+            // ===== Celeste 风格移动 =====
+            const inputX = (keys.ArrowLeft || keys.a || keys.A) ? -1 : (keys.ArrowRight || keys.d || keys.D) ? 1 : 0;
             
+            // 加速度系统
+            const accel = player.ground ? PHYSICS.groundAccel : PHYSICS.airAccel;
+            const targetVx = inputX * PHYSICS.moveSpeed;
+            
+            if (inputX !== 0) {
+                player.vx += (targetVx - player.vx) * accel;
+            } else {
+                // 摩擦力
+                const friction = player.ground ? PHYSICS.friction : PHYSICS.airFriction;
+                player.vx *= friction;
+                if (Math.abs(player.vx) < 0.1) player.vx = 0;
+            }
+            
+            // 土狼时间和跳跃缓冲
+            if (player.ground) {
+                player.coyoteTimer = PHYSICS.coyoteTime;
+            } else {
+                player.coyoteTimer--;
+            }
+            
+            if (player.jumpBufferTimer > 0) player.jumpBufferTimer--;
+            
+            // 跳跃逻辑
+            if (player.jumpBufferTimer > 0 && player.coyoteTimer > 0) {
+                player.vy = PHYSICS.jumpSpeed;
+                player.jumpBufferTimer = 0;
+                player.coyoteTimer = 0;
+                playSound('jump');
+                createParticles(player.x, player.y, 8, 'jump');
+            }
+            
+            // 可变跳跃高度（按住跳跃 = 低重力，松开 = 高重力）
+            let currentGravity = PHYSICS.gravity;
+            if (player.vy < 0 && player.jumpHeld) {
+                currentGravity = PHYSICS.jumpHoldGravity;
+            } else if (player.vy < 0 && !player.jumpHeld) {
+                currentGravity = PHYSICS.jumpReleaseGravity;
+            }
+            
+            player.vy += currentGravity;
+            player.vy = Math.min(player.vy, PHYSICS.maxFallSpeed);
+            
+            // 应用速度
             player.x += player.vx;
             if (player.x < 0) player.x = 0;
             if (player.x > W - 24) player.x = W - 24;
@@ -779,14 +1237,26 @@
                 // 平台和移动平台
                 if (o.type === 'platform' || o.type === 'moving') {
                     if (hit(pl, p)) {
-                        if (player.vy > 0 && player.y + 32 - player.vy <= p.y) {
+                        // 从上方落下
+                        if (player.vy > 0 && player.y + 32 - player.vy <= p.y + 4) {
                             player.y = p.y - 32;
                             player.vy = 0;
                             player.ground = true;
                             if (o.type === 'moving') player.x += o.speed;
-                        } else if (player.vy < 0 && player.y - player.vy >= p.y + p.h) {
+                        } 
+                        // 从下方撞击
+                        else if (player.vy < 0 && player.y - player.vy >= p.y + p.h - 4) {
                             player.y = p.y + p.h;
                             player.vy = 0;
+                        }
+                        // 左右碰撞
+                        else {
+                            if (player.vx > 0) {
+                                player.x = p.x - 24;
+                            } else if (player.vx < 0) {
+                                player.x = p.x + p.w;
+                            }
+                            player.vx = 0;
                         }
                     }
                 }
@@ -823,12 +1293,15 @@
                 }
                 
                 // 终点 - 完成
-                if (o.type === 'goal' && hit(pl, p)) {
+                if (o.type === 'goal' && hit(pl, p) && !player.celebrating) {
                     playSound('win');
                     createParticles(o.x, o.y, 30, 'coin');
+                    player.celebrating = true;
                     const finalTime = (elapsedTime / 1000).toFixed(2);
-                    alert(`🎉 完成！用时：${finalTime}秒`);
-                    document.getElementById('editBtn').click();
+                    setTimeout(() => {
+                        alert(`🎉 完成！用时：${finalTime}秒`);
+                        document.getElementById('editBtn').click();
+                    }, 1500);
                 }
             });
             
